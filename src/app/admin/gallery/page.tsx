@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Upload, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 
 type GalleryImage = {
   id: string;
@@ -44,7 +44,7 @@ export default function AdminGallery() {
       // Upload all files in parallel via ImgBB
       const uploadPromises = files.map(async (file, i) => {
         const imageId = `${Date.now()}_${i}`;
-        const url = await uploadToImgBB(file);
+        const url = await uploadImage(file);
         return { id: imageId, url, term: selectedTerm };
       });
 

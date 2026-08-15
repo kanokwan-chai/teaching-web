@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, UploadCloud, Trash2, Loader2, Image as ImageIcon, FileText, Edit } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 import WeeklyLogForm from "./WeeklyLogForm";
 import SupervisionForm from "./SupervisionForm";
 
@@ -80,7 +80,7 @@ export default function AdminLogs() {
 
     setSavingWork(true);
     try {
-      const imageUrl = await uploadToImgBB(workFile);
+      const imageUrl = await uploadImage(workFile);
 
       await addDoc(collection(db, "student_works"), {
         title: workTitle,

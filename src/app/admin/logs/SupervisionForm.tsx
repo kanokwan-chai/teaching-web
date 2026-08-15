@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, Loader2, UploadCloud, FileText } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 
 interface SupRecord {
   date: string;
@@ -91,7 +91,7 @@ export default function SupervisionForm() {
       const processRecord = async (record: SupRecord) => {
         let uploadedUrl = record.imageUrl;
         if (record.file) {
-          uploadedUrl = await uploadToImgBB(record.file);
+          uploadedUrl = await uploadImage(record.file);
         }
         return {
           date: record.date || "",

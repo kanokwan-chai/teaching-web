@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, ImagePlus, Loader2 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 
 export default function AdminSchool() {
   const [loading, setLoading] = useState(true);
@@ -71,17 +71,17 @@ export default function AdminSchool() {
 
       // Upload main image
       if (imageFile) {
-        updatedData.imageUrl = await uploadToImgBB(imageFile);
+        updatedData.imageUrl = await uploadImage(imageFile);
       }
 
       // Upload logo
       if (logoFile) {
-        updatedData.logoUrl = await uploadToImgBB(logoFile);
+        updatedData.logoUrl = await uploadImage(logoFile);
       }
 
       // Upload org chart
       if (orgChartFile) {
-        updatedData.orgChartUrl = await uploadToImgBB(orgChartFile);
+        updatedData.orgChartUrl = await uploadImage(orgChartFile);
       }
 
       await setDoc(doc(db, "school", "info"), updatedData);

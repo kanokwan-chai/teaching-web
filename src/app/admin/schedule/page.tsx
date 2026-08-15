@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Upload, Trash2, Loader2, Save } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 
 export default function AdminSchedule() {
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function AdminSchedule() {
       const newImages = [...scheduleImages];
       
       for (let i = 0; i < files.length; i++) {
-        const url = await uploadToImgBB(files[i]);
+        const url = await uploadImage(files[i]);
         newImages.push({
           id: `${Date.now()}_${i}`,
           url,

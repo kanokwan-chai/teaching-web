@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, Loader2, UploadCloud, X, CalendarOff } from "lucide-react";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 
@@ -104,7 +104,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       let finalImageUrls = [...weekImageUrls];
       
       if (weekFiles.length > 0) {
-        const uploadedUrls = await Promise.all(weekFiles.map(file => uploadToImgBB(file)));
+        const uploadedUrls = await Promise.all(weekFiles.map(file => uploadImage(file)));
         finalImageUrls = [...finalImageUrls, ...uploadedUrls];
       }
 

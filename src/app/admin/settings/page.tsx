@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, Upload, Loader2 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { uploadToImgBB } from "@/lib/imgbb";
+import { uploadImage } from "@/lib/upload";
 
 export default function AdminSettingsDemo() {
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export default function AdminSettingsDemo() {
       let finalImageUrl = formData.imageUrl;
 
       if (file) {
-        finalImageUrl = await uploadToImgBB(file);
+        finalImageUrl = await uploadImage(file);
       }
 
       await setDoc(doc(db, "settings", "profile"), {

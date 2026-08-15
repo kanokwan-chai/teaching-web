@@ -42,7 +42,7 @@ export default function Navbar() {
     <nav className="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
       <Link href="/" className="text-xl font-bold text-primary flex items-center gap-2">
         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-primary/20 overflow-hidden shadow-sm p-1">
-          <img src="/system-logo.png" className="w-full h-full object-contain" alt="Logo" />
+          <img src={logoUrl} className="w-full h-full object-contain rounded-full" alt="Logo" />
         </div>
         <span className="hidden sm:inline">รายงานการฝึกสอน</span>
       </Link>

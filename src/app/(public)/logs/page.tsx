@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Loader2, Sparkles, Image as ImageIcon } from "lucide-react";
+import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import ImageCarousel from "@/components/ImageCarousel";
@@ -132,8 +132,8 @@ export default function LogsPage() {
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.onsite?.teacher || "-"}</p>
               </div>
                 {currentSup.onsite?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200">
-                    <img src={currentSup.onsite.imageUrl} alt="On-site" className="w-full h-full object-cover" />
+                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                    <img src={currentSup.onsite.imageUrl} alt="On-site" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -146,8 +146,8 @@ export default function LogsPage() {
                 <p><strong>วิชา:</strong> {currentSup.online1?.subject || "-"}</p>
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.online1?.teacher || "-"}</p>
                 {currentSup.online1?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200">
-                    <img src={currentSup.online1.imageUrl} alt="Online 1" className="w-full h-full object-cover" />
+                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                    <img src={currentSup.online1.imageUrl} alt="Online 1" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -161,8 +161,8 @@ export default function LogsPage() {
                 <p><strong>วิชา:</strong> {currentSup.online2?.subject || "-"}</p>
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.online2?.teacher || "-"}</p>
                 {currentSup.online2?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200">
-                    <img src={currentSup.online2.imageUrl} alt="Online 2" className="w-full h-full object-cover" />
+                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                    <img src={currentSup.online2.imageUrl} alt="Online 2" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -275,9 +275,17 @@ export default function LogsPage() {
                                 {leaveType === 'holiday' ? 'ไม่ได้บันทึกการสอน (วันหยุด)' : leaveType === 'personal' ? 'ลากิจ' : 'ลาป่วย'}
                               </p>
                             ) : (
-                              <p className="text-foreground/80 text-sm whitespace-pre-wrap leading-relaxed">
-                                {act.activity || <span className="opacity-40 italic">ไม่มีรายละเอียดกิจกรรม</span>}
-                              </p>
+                              <div className="flex flex-col gap-2 w-full">
+                                <p className="text-foreground/80 text-sm whitespace-pre-wrap leading-relaxed">
+                                  {act.activity || <span className="opacity-40 italic">ไม่มีรายละเอียดกิจกรรม</span>}
+                                </p>
+                                {act.activityLink && (
+                                  <a href={act.activityLink} target="_blank" rel="noopener noreferrer" className="text-accent text-sm font-medium hover:underline flex items-center gap-1.5 w-fit mt-1 bg-accent/5 px-3 py-1.5 rounded-lg border border-accent/10">
+                                    <LinkIcon size={14} />
+                                    ดูผลงาน/กิจกรรม
+                                  </a>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -324,20 +332,27 @@ export default function LogsPage() {
                 transition={{ delay: 0.1 * i }}
                 className="glass rounded-3xl overflow-hidden border border-white/50 bg-white/40 shadow-sm group hover:shadow-xl hover:shadow-accent/20 transition-all duration-500"
               >
-                <div className="aspect-[4/3] overflow-hidden relative">
+                <div className="aspect-[4/3] overflow-hidden relative bg-gray-50 flex items-center justify-center">
                   <img 
                     src={work.imageUrl} 
                     alt={work.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover absolute inset-0 z-0 group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  <div className="hidden flex-col items-center justify-center p-4 text-center z-0 text-gray-400">
+                    <FileText size={48} className="mb-2 opacity-50" />
+                    <span className="text-xs break-all line-clamp-3 px-2">{work.imageUrl}</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 z-10">
                     <p className="text-white font-bold text-lg drop-shadow-md translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                       {work.title}
                     </p>
                   </div>
                 </div>
                 <div className="p-5 text-center group-hover:bg-white/60 transition-colors">
-                  <h3 className="font-bold text-foreground/80 line-clamp-1">{work.title}</h3>
+                  <a href={work.imageUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-foreground/80 line-clamp-1 hover:text-primary transition-colors">
+                    {work.title}
+                  </a>
                 </div>
               </motion.div>
             ))}

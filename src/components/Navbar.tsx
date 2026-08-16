@@ -10,22 +10,9 @@ import { doc, getDoc } from "firebase/firestore";
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUhN1uL-eya-663hhr7ScHaMgwNUBFz0NXKPhQ74t1FA&s");
+  const [logoUrl, setLogoUrl] = useState("/system-logo.png");
 
-  useEffect(() => {
-    const fetchLogo = async () => {
-      try {
-        const docRef = doc(db, "settings", "profile");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().imageUrl) {
-          setLogoUrl(docSnap.data().imageUrl);
-        }
-      } catch (error) {
-        console.error("Error fetching logo:", error);
-      }
-    };
-    fetchLogo();
-  }, []);
+
 
   const links = [
     { name: "หน้าแรก", href: "/" },
@@ -40,9 +27,9 @@ export default function Navbar() {
 
   return (
     <nav className="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
-      <Link href="/" className="text-xl font-bold text-primary flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-primary/20 overflow-hidden shadow-sm p-1">
-          <img src={logoUrl} className="w-full h-full object-contain rounded-full" alt="Logo" />
+      <Link href="/" className="text-xl font-bold text-primary flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center border-[3px] border-primary/30 overflow-hidden shadow-sm">
+          <img src={logoUrl} className="w-full h-full object-cover" alt="Logo" />
         </div>
         <span className="hidden sm:inline">รายงานการฝึกสอน</span>
       </Link>

@@ -12,6 +12,7 @@ export default function AdminResearch() {
   const [formData, setFormData] = useState({
     title: "",
     pdfUrl: "",
+    workLink: "",
   });
 
   useEffect(() => {
@@ -46,11 +47,12 @@ export default function AdminResearch() {
         title: formData.title,
         filename: "ลิงก์ Google Drive",
         pdfUrl: formData.pdfUrl,
+        workLink: formData.workLink,
         createdAt: new Date().toISOString()
       });
 
       alert("บันทึกวิจัยในชั้นเรียนสำเร็จ!");
-      setFormData({ title: "", pdfUrl: "" });
+      setFormData({ title: "", pdfUrl: "", workLink: "" });
       fetchResearches();
     } catch (error) {
       console.error("Error saving research:", error);
@@ -121,6 +123,20 @@ export default function AdminResearch() {
               <p className="text-xs text-foreground/50 mt-2">อย่าลืมตั้งค่าลิงก์ใน Google Drive ให้เป็น "Anyone with the link"</p>
             </div>
             
+            <div>
+              <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ชิ้นงาน (ถ้ามี)</label>
+              <div className="relative">
+                <LinkIcon className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                <input 
+                  type="url" 
+                  value={formData.workLink}
+                  onChange={(e) => setFormData({...formData, workLink: e.target.value})}
+                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="วางลิงก์ผลงานที่นี่..." 
+                />
+              </div>
+            </div>
+            
             <button 
               onClick={handleUpload}
               disabled={saving}
@@ -156,10 +172,18 @@ export default function AdminResearch() {
                     </div>
                     <div>
                       <h3 className="font-bold text-lg text-foreground">{resItem.title}</h3>
-                      <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-1">
-                        <FileText size={14} />
-                        เปิดดูไฟล์ PDF
-                      </a>
+                      <div className="flex items-center gap-4 mt-1">
+                        <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
+                          <FileText size={14} />
+                          เปิดดูไฟล์ PDF
+                        </a>
+                        {resItem.workLink && (
+                          <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1">
+                            <LinkIcon size={14} />
+                            ลิงก์ชิ้นงาน
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <button 

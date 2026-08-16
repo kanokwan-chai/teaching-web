@@ -12,6 +12,7 @@ export default function AdminEvaluation() {
   const [formData, setFormData] = useState({
     title: "",
     pdfUrl: "",
+    term: 1,
   });
 
   useEffect(() => {
@@ -46,11 +47,12 @@ export default function AdminEvaluation() {
         title: formData.title,
         filename: "ลิงก์ Google Drive",
         pdfUrl: formData.pdfUrl,
+        term: formData.term,
         createdAt: new Date().toISOString()
       });
 
       alert("บันทึกแบบประเมินสำเร็จ!");
-      setFormData({ title: "", pdfUrl: "" });
+      setFormData({ title: "", pdfUrl: "", term: 1 });
       fetchEvaluations();
     } catch (error) {
       console.error("Error saving evaluation:", error);
@@ -96,6 +98,17 @@ export default function AdminEvaluation() {
         <div className="glass p-6 md:p-8 rounded-2xl border border-white/50 bg-white/40 shadow-sm h-fit">
           <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2 mb-6">เพิ่มแบบประเมินใหม่</h2>
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-foreground mb-2">ภาคเรียนที่</label>
+              <select 
+                value={formData.term}
+                onChange={(e) => setFormData({...formData, term: Number(e.target.value)})}
+                className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50 mb-4"
+              >
+                <option value={1}>ภาคเรียนที่ 1</option>
+                <option value={2}>ภาคเรียนที่ 2</option>
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-bold text-foreground mb-2">ชื่อแบบประเมิน</label>
               <input 
@@ -155,7 +168,12 @@ export default function AdminEvaluation() {
                       <span className="font-bold text-lg">{evaluations.length - index}</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-foreground">{evalItem.title}</h3>
+                      <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                        {evalItem.title}
+                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                          เทอม {evalItem.term || 1}
+                        </span>
+                      </h3>
                       <a href={evalItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-1">
                         <FileText size={14} />
                         เปิดดูไฟล์ PDF

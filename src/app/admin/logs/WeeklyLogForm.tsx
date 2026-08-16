@@ -12,6 +12,7 @@ interface Activity {
   activity: string;
   isHoliday: boolean; // For backward compatibility
   leaveType?: "none" | "holiday" | "personal" | "sick";
+  activityLink?: string;
 }
 
 const defaultDays = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"];
@@ -41,7 +42,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
   const [weekImageUrls, setWeekImageUrls] = useState<string[]>([]);
   
   const [activities, setActivities] = useState<Activity[]>(
-    defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none" }))
+    defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none", activityLink: "" }))
   );
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
           activity: existingAct.activity || "",
           isHoliday: existingAct.isHoliday || false,
           leaveType: existingAct.leaveType || (existingAct.isHoliday ? "holiday" : "none"),
+          activityLink: existingAct.activityLink || "",
         };
       });
       setActivities(newActivities);
@@ -71,14 +73,16 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       setTerm(1);
       setWeekImageUrls([]);
       setWeekFiles([]);
-      setActivities(defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none" })));
+      setActivities(defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none", activityLink: "" })));
     }
   }, [editLog]);
 
   const updateActivity = (index: number, field: keyof Activity, value: any) => {
-    const newActivities = [...activities];
-    newActivities[index] = { ...newActivities[index], [field]: value };
-    setActivities(newActivities);
+    setActivities(prev => {
+      const newActivities = [...prev];
+      newActivities[index] = { ...newActivities[index], [field]: value };
+      return newActivities;
+    });
   };
 
   const removeFile = (index: number) => {
@@ -136,7 +140,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
         setTerm(1);
         setWeekFiles([]);
         setWeekImageUrls([]);
-        setActivities(defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none" })));
+        setActivities(defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none", activityLink: "" })));
       }
       
       onSaved();
@@ -304,6 +308,13 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
                         className="w-full p-3 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/30 outline-none" 
                         placeholder="รายละเอียดการทำงาน..." 
                         rows={3}
+                      />
+                      <input 
+                        type="url" 
+                        value={act.activityLink || ""}
+                        onChange={(e) => updateActivity(index, "activityLink", e.target.value)}
+                        className="w-full p-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/30 outline-none text-accent" 
+                        placeholder="ลิงก์กิจกรรมการเรียนรู้/ผลงาน (ถ้ามี)..." 
                       />
                     </div>
                   ) : (

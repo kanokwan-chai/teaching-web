@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const adminAuthCookie = request.cookies.get('admin_auth')?.value;
   const isLoginPage = request.nextUrl.pathname === '/login';
   const isAdminPath = request.nextUrl.pathname.startsWith('/admin');

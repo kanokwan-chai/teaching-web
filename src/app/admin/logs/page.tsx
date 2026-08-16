@@ -16,7 +16,7 @@ export default function AdminLogs() {
   
   const [teachingLogs, setTeachingLogs] = useState<any[]>([]);
   const [works, setWorks] = useState<any[]>([]);
-  const [workFile, setWorkFile] = useState<File | null>(null);
+  const [workLink, setWorkLink] = useState("");
   const [workTitle, setWorkTitle] = useState("");
   const [workTerm, setWorkTerm] = useState(1);
 
@@ -66,36 +66,28 @@ export default function AdminLogs() {
   };
 
 
-  const handleWorkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setWorkFile(e.target.files[0]);
-    }
-  };
-
   const handleUploadWork = async () => {
-    if (!workFile || !workTitle) {
-      alert("กรุณากรอกชื่อผลงานและเลือกรูปภาพ");
+    if (!workLink || !workTitle) {
+      alert("กรุณากรอกชื่อผลงานและวางลิงก์");
       return;
     }
 
     setSavingWork(true);
     try {
-      const imageUrl = await uploadImage(workFile);
-
       await addDoc(collection(db, "student_works"), {
         title: workTitle,
         term: workTerm,
-        imageUrl: imageUrl,
+        imageUrl: workLink,
         createdAt: new Date().toISOString()
       });
 
       alert("เพิ่มผลงานนักเรียนสำเร็จ!");
       setWorkTitle("");
-      setWorkFile(null);
+      setWorkLink("");
       fetchData();
     } catch (error) {
       console.error("Error uploading work:", error);
-      alert("เกิดข้อผิดพลาดในการอัปโหลด");
+      alert("เกิดข้อผิดพลาดในการเพิ่มผลงาน");
     } finally {
       setSavingWork(false);
     }
@@ -173,18 +165,16 @@ export default function AdminLogs() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-foreground mb-2">รูปภาพผลงาน</label>
-                <label className={`w-full h-32 rounded-xl border-2 border-dashed ${workFile ? 'border-primary bg-primary/5' : 'border-gray-300 bg-white/30'} flex flex-col items-center justify-center text-gray-500 hover:bg-white/50 hover:border-primary/50 transition-colors cursor-pointer relative overflow-hidden`}>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleWorkFileChange} />
-                  {workFile ? (
-                    <img src={URL.createObjectURL(workFile)} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <>
-                      <UploadCloud size={32} className="mb-2" />
-                      <p className="text-sm">คลิกเพื่อเลือกรูปภาพ</p>
-                    </>
-                  )}
-                </label>
+                <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ผลงาน (URL)</label>
+                <div className="relative">
+                  <input 
+                    type="url" 
+                    value={workLink}
+                    onChange={(e) => setWorkLink(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                    placeholder="วางลิงก์ผลงาน หรือ ลิงก์รูปภาพ..." 
+                  />
+                </div>
               </div>
               
               <button 
@@ -192,8 +182,8 @@ export default function AdminLogs() {
                 disabled={savingWork}
                 className="w-full py-3 bg-accent text-white font-bold rounded-xl hover:bg-orange-600 transition-colors mt-6 shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
               >
-                {savingWork ? <Loader2 className="animate-spin" size={20} /> : <UploadCloud size={20} />}
-                อัปโหลดผลงาน
+                <UploadCloud size={20} />
+                เพิ่มผลงาน
               </button>
             </div>
           </div>
@@ -266,8 +256,12 @@ export default function AdminLogs() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {works.map((work) => (
-                <div key={work.id} className="relative group aspect-square rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
-                  <img src={work.imageUrl} alt={work.title} className="w-full h-full object-cover" />
+                <div key={work.id} className="relative group aspect-square rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50 flex items-center justify-center">
+                  <img src={work.imageUrl} alt={work.title} className="w-full h-full object-cover absolute inset-0 z-0" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                  <div className="hidden flex-col items-center justify-center p-4 text-center z-0 text-gray-400">
+                    <FileText size={32} className="mb-2 opacity-50" />
+                    <span className="text-[10px] break-all line-clamp-3">{work.imageUrl}</span>
+                  </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                     <p className="text-white font-bold text-sm drop-shadow-md line-clamp-1">{work.title}</p>
                     <span className="text-[10px] bg-white/20 text-white w-fit px-2 py-0.5 rounded-full backdrop-blur-sm mt-1 mb-2">

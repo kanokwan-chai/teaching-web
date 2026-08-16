@@ -71,17 +71,12 @@ export default function ResearchPage() {
               transition={{ delay: i * 0.1 }}
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-gray-200/50 pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center flex-shrink-0 border border-primary/20">
-                    <span className="font-bold text-xl">{researches.length - i}</span>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">{resItem.title}</h2>
-                    <p className="text-foreground/60 flex items-center gap-2 mt-1">
-                      <FileText size={16} />
-                      {resItem.filename || "วิจัย (PDF)"}
-                    </p>
-                  </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">{resItem.title}</h2>
+                  <p className="text-foreground/60 flex items-center gap-2 mt-1">
+                    <FileText size={16} />
+                    {resItem.filename || "วิจัย (PDF)"}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
@@ -108,12 +103,10 @@ export default function ResearchPage() {
                 </div>
               </div>
 
-              {/* Embedded PDF & Work Previewer */}
+              {/* Embedded PDF Viewer Only */}
               <MediaPreview
                 pdfUrl={resItem.pdfUrl}
-                workLink={resItem.workLink}
                 pdfTitle="พรีวิววิจัย (PDF)"
-                workTitle="พรีวิวชิ้นงาน/ผลงาน"
               />
             </motion.div>
           ))}

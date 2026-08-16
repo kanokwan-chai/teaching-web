@@ -15,7 +15,7 @@ export default function LessonsPage() {
   useEffect(() => {
     const fetchLessons = async () => {
       try {
-        const q = query(collection(db, "lessons"), orderBy("unit", "asc"));
+        const q = query(collection(db, "lessons"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         const data: any[] = [];
         querySnapshot.forEach((doc) => {
@@ -145,7 +145,7 @@ export default function LessonsPage() {
                   <div className="flex items-start md:items-center gap-4">
                     <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex flex-col items-center justify-center flex-shrink-0 border border-primary/20">
                       <span className="text-[10px] font-bold uppercase text-primary/70">เทอม {termNum}</span>
-                      <span className="font-bold text-xl leading-none">หน่วย {lesson.unit}</span>
+                      <span className="font-bold text-xl leading-none">#{filteredLessons.length - i}</span>
                     </div>
                     <div>
                       {/* Meta badges: Subject & Mentor Teacher */}
@@ -167,7 +167,7 @@ export default function LessonsPage() {
                         )}
                       </div>
                       <h2 className="text-2xl font-bold text-foreground">
-                        หน่วยที่ {lesson.unit}: {lesson.title}
+                        {lesson.title}
                       </h2>
                     </div>
                   </div>
@@ -211,4 +211,5 @@ export default function LessonsPage() {
     </div>
   );
 }
+
 

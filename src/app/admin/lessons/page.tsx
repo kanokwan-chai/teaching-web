@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save, UserCheck, BookOpen, Layers, Eye, EyeOff } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, UserCheck, BookOpen, Eye, EyeOff } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 import MediaPreview from "@/components/MediaPreview";
@@ -17,7 +17,6 @@ export default function AdminLessons() {
     term: "1",
     subject: "",
     mentorTeacher: "",
-    unit: "",
     title: "",
     pdfUrl: "",
     workLink: "",
@@ -29,7 +28,7 @@ export default function AdminLessons() {
 
   const fetchLessons = async () => {
     try {
-      const q = query(collection(db, "lessons"), orderBy("unit", "asc"));
+      const q = query(collection(db, "lessons"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const data: any[] = [];
       querySnapshot.forEach((doc) => {
@@ -45,7 +44,7 @@ export default function AdminLessons() {
 
   const handleUpload = async () => {
     if (!formData.pdfUrl || !formData.title || !formData.subject) {
-      alert("กรุณากรอกข้อมูล วิชา, ชื่อหน่วยการเรียนรู้ และใส่ลิงก์ Google Drive ให้ครบถ้วน");
+      alert("กรุณากรอกข้อมูล วิชา, ชื่อแผนการสอน/เรื่อง และใส่ลิงก์ Google Drive ให้ครบถ้วน");
       return;
     }
 
@@ -55,7 +54,6 @@ export default function AdminLessons() {
         term: Number(formData.term) || 1,
         subject: formData.subject,
         mentorTeacher: formData.mentorTeacher,
-        unit: Number(formData.unit) || 1,
         title: formData.title,
         filename: "ลิงก์ Google Drive",
         pdfUrl: formData.pdfUrl,
@@ -68,7 +66,6 @@ export default function AdminLessons() {
         term: "1",
         subject: "",
         mentorTeacher: "",
-        unit: "",
         title: "",
         pdfUrl: "",
         workLink: "",
@@ -167,27 +164,15 @@ export default function AdminLessons() {
               </div>
             </div>
 
-            {/* Unit Number */}
+            {/* Title / Topic */}
             <div>
-              <label className="block text-sm font-bold text-foreground mb-2">หน่วยที่</label>
-              <input 
-                type="number" 
-                value={formData.unit}
-                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                placeholder="เช่น 1" 
-              />
-            </div>
-
-            {/* Unit Title */}
-            <div>
-              <label className="block text-sm font-bold text-foreground mb-2">ชื่อหน่วยการเรียนรู้ / เรื่อง</label>
+              <label className="block text-sm font-bold text-foreground mb-2">ชื่อแผนการสอน / เรื่อง</label>
               <input 
                 type="text" 
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                placeholder="เช่น ความรู้เบื้องต้นเกี่ยวกับวิทยาการคำนวณ" 
+                placeholder="เช่น การเขียนโปรแกรมเบื้องต้นด้วย Scratch" 
               />
             </div>
 
@@ -279,7 +264,7 @@ export default function AdminLessons() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {filteredLessons.map((lesson) => {
+              {filteredLessons.map((lesson, idx) => {
                 const termNum = lesson.term || 1;
                 const isPreviewing = previewId === lesson.id;
 
@@ -289,7 +274,7 @@ export default function AdminLessons() {
                       <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-primary/10 text-primary rounded-xl flex flex-col items-center justify-center flex-shrink-0 border border-primary/20">
                           <span className="text-[10px] font-bold uppercase text-primary/70">เทอม {termNum}</span>
-                          <span className="font-bold text-lg leading-none">น.{lesson.unit}</span>
+                          <span className="font-bold text-lg leading-none">#{filteredLessons.length - idx}</span>
                         </div>
                         <div>
                           <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -309,7 +294,7 @@ export default function AdminLessons() {
                               </span>
                             )}
                           </div>
-                          <h3 className="font-bold text-lg text-foreground">หน่วยที่ {lesson.unit}: {lesson.title}</h3>
+                          <h3 className="font-bold text-lg text-foreground">{lesson.title}</h3>
                           <div className="flex flex-wrap items-center gap-4 mt-2">
                             <a href={lesson.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
                               <FileText size={14} />
@@ -364,4 +349,5 @@ export default function AdminLessons() {
     </div>
   );
 }
+
 

@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Eye, EyeOff } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import MediaPreview from "@/components/MediaPreview";
 
 export default function AdminEvaluation() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [evaluations, setEvaluations] = useState<any[]>([]);
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     pdfUrl: "",
@@ -103,10 +105,10 @@ export default function AdminEvaluation() {
               <select 
                 value={formData.term}
                 onChange={(e) => setFormData({...formData, term: Number(e.target.value)})}
-                className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50 mb-4"
+                className="w-full p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50 mb-4 font-medium"
               >
-                <option value={1}>ภาคเรียนที่ 1</option>
-                <option value={2}>ภาคเรียนที่ 2</option>
+                <option value={1}>ภาคเรียนที่ 1 (เทอม 1)</option>
+                <option value={2}>ภาคเรียนที่ 2 (เทอม 2)</option>
               </select>
             </div>
             <div>
@@ -161,34 +163,54 @@ export default function AdminEvaluation() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {evaluations.map((evalItem, index) => (
-                <div key={evalItem.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 flex items-center justify-between hover:border-primary/30 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-accent/10 text-accent rounded-xl flex items-center justify-center flex-shrink-0 border border-accent/20">
-                      <span className="font-bold text-lg">{evaluations.length - index}</span>
+              {evaluations.map((evalItem) => {
+                const isPreviewing = previewId === evalItem.id;
+
+                return (
+                  <div key={evalItem.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                          {evalItem.title}
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 font-bold">
+                            เทอม {evalItem.term || 1}
+                          </span>
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1">
+                          <a href={evalItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                            <FileText size={14} />
+                            เปิดดูไฟล์ PDF
+                          </a>
+                          <button
+                            onClick={() => setPreviewId(isPreviewing ? null : evalItem.id)}
+                            className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
+                          >
+                            {isPreviewing ? <EyeOff size={14} /> : <Eye size={14} />}
+                            <span>{isPreviewing ? "ซ่อนตัวอย่าง PDF" : "พรีวิวตัวอย่าง"}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => handleDelete(evalItem.id)}
+                        className="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
+                        title="ลบไฟล์"
+                      >
+                        <Trash2 size={24} />
+                      </button>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
-                        {evalItem.title}
-                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-                          เทอม {evalItem.term || 1}
-                        </span>
-                      </h3>
-                      <a href={evalItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-1">
-                        <FileText size={14} />
-                        เปิดดูไฟล์ PDF
-                      </a>
-                    </div>
+
+                    {isPreviewing && (
+                      <div className="mt-4 pt-4 border-t border-gray-200/60">
+                        <MediaPreview
+                          pdfUrl={evalItem.pdfUrl}
+                          pdfTitle="พรีวิวแบบประเมิน (PDF)"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <button 
-                    onClick={() => handleDelete(evalItem.id)}
-                    className="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
-                    title="ลบไฟล์"
-                  >
-                    <Trash2 size={24} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -196,3 +218,4 @@ export default function AdminEvaluation() {
     </div>
   );
 }
+

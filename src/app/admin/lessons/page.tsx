@@ -271,31 +271,26 @@ export default function AdminLessons() {
                 return (
                   <div key={lesson.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md transition-all">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 bg-primary/10 text-primary rounded-xl flex flex-col items-center justify-center flex-shrink-0 border border-primary/20">
-                          <span className="text-[10px] font-bold uppercase text-primary/70">เทอม {termNum}</span>
-                          <span className="font-bold text-lg leading-none">#{filteredLessons.length - idx}</span>
-                        </div>
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <span className="px-2.5 py-0.5 bg-primary/15 text-primary text-xs font-bold rounded-md">
-                              เทอม {termNum}
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <span className="px-2.5 py-0.5 bg-primary/15 text-primary text-xs font-bold rounded-md">
+                            เทอม {termNum}
+                          </span>
+                          {lesson.subject && (
+                            <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-md flex items-center gap-1">
+                              <BookOpen size={12} />
+                              {lesson.subject}
                             </span>
-                            {lesson.subject && (
-                              <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-md flex items-center gap-1">
-                                <BookOpen size={12} />
-                                {lesson.subject}
-                              </span>
-                            )}
-                            {lesson.mentorTeacher && (
-                              <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-md flex items-center gap-1">
-                                <UserCheck size={12} />
-                                ครูพี่เลี้ยง: {lesson.mentorTeacher}
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="font-bold text-lg text-foreground">{lesson.title}</h3>
-                          <div className="flex flex-wrap items-center gap-4 mt-2">
+                          )}
+                          {lesson.mentorTeacher && (
+                            <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-md flex items-center gap-1">
+                              <UserCheck size={12} />
+                              ครูพี่เลี้ยง: {lesson.mentorTeacher}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-bold text-lg text-foreground">{lesson.title}</h3>
+                        <div className="flex flex-wrap items-center gap-4 mt-2">
                             <a href={lesson.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
                               <FileText size={14} />
                               เปิดลิงก์ PDF
@@ -315,7 +310,6 @@ export default function AdminLessons() {
                             </button>
                           </div>
                         </div>
-                      </div>
 
                       <div className="flex items-center gap-2 self-end md:self-center">
                         <button 

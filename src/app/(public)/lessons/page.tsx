@@ -142,34 +142,28 @@ export default function LessonsPage() {
                 transition={{ delay: i * 0.08 }}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-gray-200/50 pb-6">
-                  <div className="flex items-start md:items-center gap-4">
-                    <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex flex-col items-center justify-center flex-shrink-0 border border-primary/20">
-                      <span className="text-[10px] font-bold uppercase text-primary/70">เทอม {termNum}</span>
-                      <span className="font-bold text-xl leading-none">#{filteredLessons.length - i}</span>
-                    </div>
-                    <div>
-                      {/* Meta badges: Subject & Mentor Teacher */}
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className="px-3 py-1 bg-primary/15 text-primary text-xs font-bold rounded-lg border border-primary/20">
-                          ภาคเรียนที่ {termNum}
+                  <div>
+                    {/* Meta badges: Subject & Mentor Teacher */}
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="px-3 py-1 bg-primary/15 text-primary text-xs font-bold rounded-lg border border-primary/20">
+                        ภาคเรียนที่ {termNum}
+                      </span>
+                      {lesson.subject && (
+                        <span className="px-3 py-1 bg-blue-100/90 text-blue-800 text-xs font-bold rounded-lg border border-blue-200/60 flex items-center gap-1.5">
+                          <BookOpen size={13} />
+                          วิชา: {lesson.subject}
                         </span>
-                        {lesson.subject && (
-                          <span className="px-3 py-1 bg-blue-100/90 text-blue-800 text-xs font-bold rounded-lg border border-blue-200/60 flex items-center gap-1.5">
-                            <BookOpen size={13} />
-                            วิชา: {lesson.subject}
-                          </span>
-                        )}
-                        {lesson.mentorTeacher && (
-                          <span className="px-3 py-1 bg-emerald-100/90 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200/60 flex items-center gap-1.5">
-                            <UserCheck size={13} />
-                            ครูพี่เลี้ยง: {lesson.mentorTeacher}
-                          </span>
-                        )}
-                      </div>
-                      <h2 className="text-2xl font-bold text-foreground">
-                        {lesson.title}
-                      </h2>
+                      )}
+                      {lesson.mentorTeacher && (
+                        <span className="px-3 py-1 bg-emerald-100/90 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200/60 flex items-center gap-1.5">
+                          <UserCheck size={13} />
+                          ครูพี่เลี้ยง: {lesson.mentorTeacher}
+                        </span>
+                      )}
                     </div>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {lesson.title}
+                    </h2>
                   </div>
 
                   <div className="flex items-center gap-3 flex-wrap">

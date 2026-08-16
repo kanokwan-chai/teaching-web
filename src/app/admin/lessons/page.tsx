@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save, UserCheck, BookOpen, Eye, EyeOff } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, UserCheck, BookOpen, Eye, EyeOff, Pencil, X } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy } from "firebase/firestore";
 import MediaPreview from "@/components/MediaPreview";
 
 export default function AdminLessons() {
@@ -12,6 +12,7 @@ export default function AdminLessons() {
   const [lessons, setLessons] = useState<any[]>([]);
   const [selectedTermFilter, setSelectedTermFilter] = useState<"all" | "1" | "2">("all");
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     term: "1",
@@ -42,7 +43,33 @@ export default function AdminLessons() {
     }
   };
 
-  const handleUpload = async () => {
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({
+      term: "1",
+      subject: "",
+      mentorTeacher: "",
+      title: "",
+      pdfUrl: "",
+      workLink: "",
+    });
+  };
+
+  const handleEditClick = (lesson: any) => {
+    setEditingId(lesson.id);
+    setFormData({
+      term: String(lesson.term || 1),
+      subject: lesson.subject || "",
+      mentorTeacher: lesson.mentorTeacher || "",
+      title: lesson.title || "",
+      pdfUrl: lesson.pdfUrl || "",
+      workLink: lesson.workLink || "",
+    });
+    // Scroll form into view
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSave = async () => {
     if (!formData.pdfUrl || !formData.title || !formData.subject) {
       alert("กรุณากรอกข้อมูล วิชา, ชื่อแผนการสอน/เรื่อง และใส่ลิงก์ Google Drive ให้ครบถ้วน");
       return;
@@ -50,26 +77,35 @@ export default function AdminLessons() {
 
     setSaving(true);
     try {
-      await addDoc(collection(db, "lessons"), {
-        term: Number(formData.term) || 1,
-        subject: formData.subject,
-        mentorTeacher: formData.mentorTeacher,
-        title: formData.title,
-        filename: "ลิงก์ Google Drive",
-        pdfUrl: formData.pdfUrl,
-        workLink: formData.workLink || "",
-        createdAt: new Date().toISOString()
-      });
+      if (editingId) {
+        // Update existing lesson
+        await updateDoc(doc(db, "lessons", editingId), {
+          term: Number(formData.term) || 1,
+          subject: formData.subject,
+          mentorTeacher: formData.mentorTeacher,
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          workLink: formData.workLink || "",
+          updatedAt: new Date().toISOString()
+        });
+        alert("อัปเดตข้อมูลแผนการสอนสำเร็จ!");
+      } else {
+        // Add new lesson
+        await addDoc(collection(db, "lessons"), {
+          term: Number(formData.term) || 1,
+          subject: formData.subject,
+          mentorTeacher: formData.mentorTeacher,
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          workLink: formData.workLink || "",
+          createdAt: new Date().toISOString()
+        });
+        alert("บันทึกแผนการสอนสำเร็จ!");
+      }
 
-      alert("บันทึกแผนการสอนสำเร็จ!");
-      setFormData({
-        term: "1",
-        subject: "",
-        mentorTeacher: "",
-        title: "",
-        pdfUrl: "",
-        workLink: "",
-      });
+      resetForm();
       fetchLessons();
     } catch (error) {
       console.error("Error saving lesson:", error);
@@ -85,6 +121,7 @@ export default function AdminLessons() {
     setLoading(true);
     try {
       await deleteDoc(doc(db, "lessons", lessonId));
+      if (editingId === lessonId) resetForm();
       fetchLessons();
     } catch (error) {
       console.error("Error deleting lesson:", error);
@@ -112,17 +149,29 @@ export default function AdminLessons() {
       <div className="flex justify-between items-end mb-8">
         <header>
           <h1 className="text-3xl font-bold text-foreground mb-2">แผนการสอน (Lesson Plans)</h1>
-          <p className="text-foreground/60">จัดการแผนการเรียนรู้ แยกตามเทอม และครูพี่เลี้ยงประจำวิชา พร้อมระบบพรีวิว PDF</p>
+          <p className="text-foreground/60">จัดการแผนการเรียนรู้ แยกตามเทอม และครูพี่เลี้ยงประจำวิชา พร้อมระบบพรีวิวและแก้ไขข้อมูล</p>
         </header>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Upload Form */}
+        {/* Upload / Edit Form */}
         <div className="glass p-6 md:p-8 rounded-2xl border border-white/50 bg-white/40 shadow-sm h-fit">
-          <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2 mb-6 flex items-center gap-2">
-            <BookOpen size={22} />
-            เพิ่มแผนการสอนใหม่
-          </h2>
+          <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-6">
+            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+              {editingId ? <Pencil size={22} /> : <BookOpen size={22} />}
+              {editingId ? "แก้ไขแผนการสอน" : "เพิ่มแผนการสอนใหม่"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                className="text-xs bg-gray-200 hover:bg-gray-300 px-2.5 py-1 rounded-lg text-gray-700 font-semibold flex items-center gap-1 transition-colors"
+              >
+                <X size={14} />
+                ยกเลิก
+              </button>
+            )}
+          </div>
+
           <div className="space-y-4">
             {/* Term selection */}
             <div>
@@ -207,14 +256,26 @@ export default function AdminLessons() {
               </div>
             </div>
             
-            <button 
-              onClick={handleUpload}
-              disabled={saving}
-              className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors mt-6 shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-              {saving ? "กำลังอัปโหลด..." : "อัปโหลดและบันทึก"}
-            </button>
+            <div className="flex gap-2 pt-2">
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                {saving ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "อัปโหลดและบันทึก"}
+              </button>
+
+              {editingId && (
+                <button
+                  onClick={resetForm}
+                  type="button"
+                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -264,12 +325,13 @@ export default function AdminLessons() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {filteredLessons.map((lesson, idx) => {
+              {filteredLessons.map((lesson) => {
                 const termNum = lesson.term || 1;
                 const isPreviewing = previewId === lesson.id;
+                const isEditingThis = editingId === lesson.id;
 
                 return (
-                  <div key={lesson.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md transition-all">
+                  <div key={lesson.id} className={`glass p-5 rounded-2xl border transition-all ${isEditingThis ? "border-primary ring-2 ring-primary/30 bg-primary/5" : "border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md"}`}>
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div>
                         <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -291,33 +353,42 @@ export default function AdminLessons() {
                         </div>
                         <h3 className="font-bold text-lg text-foreground">{lesson.title}</h3>
                         <div className="flex flex-wrap items-center gap-4 mt-2">
-                            <a href={lesson.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
-                              <FileText size={14} />
-                              เปิดลิงก์ PDF
+                          <a href={lesson.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                            <FileText size={14} />
+                            เปิดลิงก์ PDF
+                          </a>
+                          {lesson.workLink && (
+                            <a href={lesson.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
+                              <LinkIcon size={14} />
+                              ลิงก์ชิ้นงาน
                             </a>
-                            {lesson.workLink && (
-                              <a href={lesson.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
-                                <LinkIcon size={14} />
-                                ลิงก์ชิ้นงาน
-                              </a>
-                            )}
-                            <button
-                              onClick={() => setPreviewId(isPreviewing ? null : lesson.id)}
-                              className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
-                            >
-                              {isPreviewing ? <EyeOff size={14} /> : <Eye size={14} />}
-                              <span>{isPreviewing ? "ซ่อนตัวอย่าง PDF" : "พรีวิวตัวอย่าง"}</span>
-                            </button>
-                          </div>
+                          )}
+                          <button
+                            onClick={() => setPreviewId(isPreviewing ? null : lesson.id)}
+                            className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
+                          >
+                            {isPreviewing ? <EyeOff size={14} /> : <Eye size={14} />}
+                            <span>{isPreviewing ? "ซ่อนตัวอย่าง PDF" : "พรีวิวตัวอย่าง"}</span>
+                          </button>
                         </div>
+                      </div>
 
                       <div className="flex items-center gap-2 self-end md:self-center">
                         <button 
+                          onClick={() => handleEditClick(lesson)}
+                          className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-transparent hover:border-blue-200 flex items-center gap-1 text-sm font-semibold"
+                          title="แก้ไขข้อมูล"
+                        >
+                          <Pencil size={18} />
+                          <span className="hidden sm:inline">แก้ไข</span>
+                        </button>
+
+                        <button 
                           onClick={() => handleDelete(lesson.id)}
-                          className="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
+                          className="p-2.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
                           title="ลบไฟล์"
                         >
-                          <Trash2 size={22} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
@@ -343,5 +414,6 @@ export default function AdminLessons() {
     </div>
   );
 }
+
 
 

@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Pencil, X, Eye, EyeOff } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy } from "firebase/firestore";
+import MediaPreview from "@/components/MediaPreview";
 
 export default function AdminResearch() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [researches, setResearches] = useState<any[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     pdfUrl: "",
@@ -35,7 +38,22 @@ export default function AdminResearch() {
     }
   };
 
-  const handleUpload = async () => {
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ title: "", pdfUrl: "", workLink: "" });
+  };
+
+  const handleEditClick = (resItem: any) => {
+    setEditingId(resItem.id);
+    setFormData({
+      title: resItem.title || "",
+      pdfUrl: resItem.pdfUrl || "",
+      workLink: resItem.workLink || "",
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSave = async () => {
     if (!formData.pdfUrl || !formData.title) {
       alert("กรุณากรอกข้อมูลและใส่ลิงก์ Google Drive ให้ครบถ้วน");
       return;
@@ -43,16 +61,27 @@ export default function AdminResearch() {
 
     setSaving(true);
     try {
-      await addDoc(collection(db, "researches"), {
-        title: formData.title,
-        filename: "ลิงก์ Google Drive",
-        pdfUrl: formData.pdfUrl,
-        workLink: formData.workLink,
-        createdAt: new Date().toISOString()
-      });
+      if (editingId) {
+        await updateDoc(doc(db, "researches", editingId), {
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          workLink: formData.workLink,
+          updatedAt: new Date().toISOString()
+        });
+        alert("อัปเดตข้อมูลวิจัยในชั้นเรียนสำเร็จ!");
+      } else {
+        await addDoc(collection(db, "researches"), {
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          workLink: formData.workLink,
+          createdAt: new Date().toISOString()
+        });
+        alert("บันทึกวิจัยในชั้นเรียนสำเร็จ!");
+      }
 
-      alert("บันทึกวิจัยในชั้นเรียนสำเร็จ!");
-      setFormData({ title: "", pdfUrl: "", workLink: "" });
+      resetForm();
       fetchResearches();
     } catch (error) {
       console.error("Error saving research:", error);
@@ -68,6 +97,7 @@ export default function AdminResearch() {
     setLoading(true);
     try {
       await deleteDoc(doc(db, "researches", resId));
+      if (editingId === resId) resetForm();
       fetchResearches();
     } catch (error) {
       console.error("Error deleting research:", error);
@@ -89,14 +119,29 @@ export default function AdminResearch() {
       <div className="flex justify-between items-end mb-8">
         <header>
           <h1 className="text-3xl font-bold text-foreground mb-2">วิจัยในชั้นเรียน (Classroom Research)</h1>
-          <p className="text-foreground/60">เพิ่มลิงก์วิจัยในชั้นเรียนเพื่อนำไปพรีวิวแสดงผลในหน้าเว็บ</p>
+          <p className="text-foreground/60">เพิ่มลิงก์วิจัยในชั้นเรียน เพื่อนำไปพรีวิวแสดงผลในหน้าเว็บ</p>
         </header>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Upload Form */}
+        {/* Form */}
         <div className="glass p-6 md:p-8 rounded-2xl border border-white/50 bg-white/40 shadow-sm h-fit">
-          <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2 mb-6">เพิ่มวิจัยใหม่</h2>
+          <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-6">
+            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+              {editingId ? <Pencil size={22} /> : <FileText size={22} />}
+              {editingId ? "แก้ไขวิจัยในชั้นเรียน" : "เพิ่มวิจัยใหม่"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                className="text-xs bg-gray-200 hover:bg-gray-300 px-2.5 py-1 rounded-lg text-gray-700 font-semibold flex items-center gap-1 transition-colors"
+              >
+                <X size={14} />
+                ยกเลิก
+              </button>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-foreground mb-2">ชื่องานวิจัย</label>
@@ -137,20 +182,32 @@ export default function AdminResearch() {
               </div>
             </div>
             
-            <button 
-              onClick={handleUpload}
-              disabled={saving}
-              className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors mt-6 shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-              {saving ? "กำลังอัปโหลด..." : "อัปโหลดและบันทึก"}
-            </button>
+            <div className="flex gap-2 pt-2">
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                {saving ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "อัปโหลดและบันทึก"}
+              </button>
+
+              {editingId && (
+                <button
+                  onClick={resetForm}
+                  type="button"
+                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* List */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-bold mb-6">วิจัยในชั้นเรียนทั้งหมด</h2>
+          <h2 className="text-xl font-bold mb-6">วิจัยในชั้นเรียนทั้งหมด ({researches.length})</h2>
           
           {loading ? (
              <div className="flex justify-center items-center py-12">
@@ -164,37 +221,67 @@ export default function AdminResearch() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {researches.map((resItem, index) => (
-                <div key={resItem.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 flex items-center justify-between hover:border-primary/30 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-accent/10 text-accent rounded-xl flex items-center justify-center flex-shrink-0 border border-accent/20">
-                      <span className="font-bold text-lg">{researches.length - index}</span>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground">{resItem.title}</h3>
-                      <div className="flex items-center gap-4 mt-1">
-                        <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
-                          <FileText size={14} />
-                          เปิดดูไฟล์ PDF
-                        </a>
-                        {resItem.workLink && (
-                          <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1">
-                            <LinkIcon size={14} />
-                            ลิงก์ชิ้นงาน
+              {researches.map((resItem) => {
+                const isEditingThis = editingId === resItem.id;
+                const isPreviewing = previewId === resItem.id;
+
+                return (
+                  <div key={resItem.id} className={`glass p-5 rounded-2xl border transition-all ${isEditingThis ? "border-primary ring-2 ring-primary/30 bg-primary/5" : "border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md"}`}>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="font-bold text-lg text-foreground">{resItem.title}</h3>
+                        <div className="flex items-center gap-4 mt-2 flex-wrap">
+                          <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                            <FileText size={14} />
+                            เปิดดูไฟล์ PDF
                           </a>
-                        )}
+                          {resItem.workLink && (
+                            <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
+                              <LinkIcon size={14} />
+                              ลิงก์ชิ้นงาน
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setPreviewId(isPreviewing ? null : resItem.id)}
+                            className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
+                          >
+                            {isPreviewing ? <EyeOff size={14} /> : <Eye size={14} />}
+                            <span>{isPreviewing ? "ซ่อนตัวอย่าง PDF" : "พรีวิวตัวอย่าง"}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end md:self-center">
+                        <button 
+                          onClick={() => handleEditClick(resItem)}
+                          className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-transparent hover:border-blue-200 flex items-center gap-1 text-sm font-semibold"
+                          title="แก้ไขข้อมูล"
+                        >
+                          <Pencil size={18} />
+                          <span className="hidden sm:inline">แก้ไข</span>
+                        </button>
+
+                        <button 
+                          onClick={() => handleDelete(resItem.id)}
+                          className="p-2.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
+                          title="ลบไฟล์"
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
                     </div>
+
+                    {isPreviewing && (
+                      <div className="mt-4 pt-4 border-t border-gray-200/60">
+                        <MediaPreview
+                          pdfUrl={resItem.pdfUrl}
+                          pdfTitle="พรีวิววิจัย (PDF)"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <button 
-                    onClick={() => handleDelete(resItem.id)}
-                    className="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
-                    title="ลบไฟล์"
-                  >
-                    <Trash2 size={24} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -202,3 +289,4 @@ export default function AdminResearch() {
     </div>
   );
 }
+

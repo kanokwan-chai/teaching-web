@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Eye, EyeOff } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Eye, EyeOff, Pencil, X } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy } from "firebase/firestore";
 import MediaPreview from "@/components/MediaPreview";
 
 export default function AdminEvaluation() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [evaluations, setEvaluations] = useState<any[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -37,7 +38,22 @@ export default function AdminEvaluation() {
     }
   };
 
-  const handleUpload = async () => {
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ title: "", pdfUrl: "", term: 1 });
+  };
+
+  const handleEditClick = (evalItem: any) => {
+    setEditingId(evalItem.id);
+    setFormData({
+      title: evalItem.title || "",
+      pdfUrl: evalItem.pdfUrl || "",
+      term: Number(evalItem.term) || 1,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSave = async () => {
     if (!formData.pdfUrl || !formData.title) {
       alert("กรุณากรอกข้อมูลและใส่ลิงก์ Google Drive ให้ครบถ้วน");
       return;
@@ -45,16 +61,27 @@ export default function AdminEvaluation() {
 
     setSaving(true);
     try {
-      await addDoc(collection(db, "evaluations"), {
-        title: formData.title,
-        filename: "ลิงก์ Google Drive",
-        pdfUrl: formData.pdfUrl,
-        term: formData.term,
-        createdAt: new Date().toISOString()
-      });
+      if (editingId) {
+        await updateDoc(doc(db, "evaluations", editingId), {
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          term: formData.term,
+          updatedAt: new Date().toISOString()
+        });
+        alert("อัปเดตข้อมูลแบบประเมินสำเร็จ!");
+      } else {
+        await addDoc(collection(db, "evaluations"), {
+          title: formData.title,
+          filename: "ลิงก์ Google Drive",
+          pdfUrl: formData.pdfUrl,
+          term: formData.term,
+          createdAt: new Date().toISOString()
+        });
+        alert("บันทึกแบบประเมินสำเร็จ!");
+      }
 
-      alert("บันทึกแบบประเมินสำเร็จ!");
-      setFormData({ title: "", pdfUrl: "", term: 1 });
+      resetForm();
       fetchEvaluations();
     } catch (error) {
       console.error("Error saving evaluation:", error);
@@ -70,6 +97,7 @@ export default function AdminEvaluation() {
     setLoading(true);
     try {
       await deleteDoc(doc(db, "evaluations", evalId));
+      if (editingId === evalId) resetForm();
       fetchEvaluations();
     } catch (error) {
       console.error("Error deleting evaluation:", error);
@@ -96,9 +124,24 @@ export default function AdminEvaluation() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Upload Form */}
+        {/* Form */}
         <div className="glass p-6 md:p-8 rounded-2xl border border-white/50 bg-white/40 shadow-sm h-fit">
-          <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2 mb-6">เพิ่มแบบประเมินใหม่</h2>
+          <div className="flex items-center justify-between border-b border-primary/20 pb-2 mb-6">
+            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+              {editingId ? <Pencil size={22} /> : <FileText size={22} />}
+              {editingId ? "แก้ไขแบบประเมิน" : "เพิ่มแบบประเมินใหม่"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                className="text-xs bg-gray-200 hover:bg-gray-300 px-2.5 py-1 rounded-lg text-gray-700 font-semibold flex items-center gap-1 transition-colors"
+              >
+                <X size={14} />
+                ยกเลิก
+              </button>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-foreground mb-2">ภาคเรียนที่</label>
@@ -136,20 +179,32 @@ export default function AdminEvaluation() {
               <p className="text-xs text-foreground/50 mt-2">อย่าลืมตั้งค่าลิงก์ใน Google Drive ให้เป็น "Anyone with the link"</p>
             </div>
             
-            <button 
-              onClick={handleUpload}
-              disabled={saving}
-              className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors mt-6 shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-              {saving ? "กำลังอัปโหลด..." : "อัปโหลดและบันทึก"}
-            </button>
+            <div className="flex gap-2 pt-2">
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-md flex justify-center items-center gap-2 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                {saving ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "อัปโหลดและบันทึก"}
+              </button>
+
+              {editingId && (
+                <button
+                  onClick={resetForm}
+                  type="button"
+                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* List */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-bold mb-6">แบบประเมินทั้งหมด</h2>
+          <h2 className="text-xl font-bold mb-6">แบบประเมินทั้งหมด ({evaluations.length})</h2>
           
           {loading ? (
              <div className="flex justify-center items-center py-12">
@@ -165,10 +220,11 @@ export default function AdminEvaluation() {
             <div className="grid gap-4">
               {evaluations.map((evalItem) => {
                 const isPreviewing = previewId === evalItem.id;
+                const isEditingThis = editingId === evalItem.id;
 
                 return (
-                  <div key={evalItem.id} className="glass p-5 rounded-2xl border border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md transition-all">
-                    <div className="flex items-center justify-between">
+                  <div key={evalItem.id} className={`glass p-5 rounded-2xl border transition-all ${isEditingThis ? "border-primary ring-2 ring-primary/30 bg-primary/5" : "border-white/50 bg-white/40 hover:border-primary/30 hover:shadow-md"}`}>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div>
                         <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
                           {evalItem.title}
@@ -191,13 +247,24 @@ export default function AdminEvaluation() {
                         </div>
                       </div>
 
-                      <button 
-                        onClick={() => handleDelete(evalItem.id)}
-                        className="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
-                        title="ลบไฟล์"
-                      >
-                        <Trash2 size={24} />
-                      </button>
+                      <div className="flex items-center gap-2 self-end md:self-center">
+                        <button 
+                          onClick={() => handleEditClick(evalItem)}
+                          className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-transparent hover:border-blue-200 flex items-center gap-1 text-sm font-semibold"
+                          title="แก้ไขข้อมูล"
+                        >
+                          <Pencil size={18} />
+                          <span className="hidden sm:inline">แก้ไข</span>
+                        </button>
+
+                        <button 
+                          onClick={() => handleDelete(evalItem.id)}
+                          className="p-2.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors border border-transparent hover:border-red-200"
+                          title="ลบไฟล์"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
 
                     {isPreviewing && (

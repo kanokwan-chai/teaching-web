@@ -80,28 +80,39 @@ export default function LogsPage() {
         setTeachingLogs(combinedLogs);
 
         // Fetch Supervision
-        const sanitizeSupItem = (item: any) => {
-          if (!item) return item;
-          const img = item.imageUrl && item.imageUrl.startsWith("/uploads/") ? item.imageUrl : "";
-          return { ...item, imageUrl: img };
+        let localSupImages: any[] = [];
+        try {
+          const supRes = await fetch("/api/local-images?folder=logs/supervision");
+          const supJson = await supRes.json();
+          localSupImages = supJson.images || [];
+        } catch (e) {
+          // ignore
+        }
+
+        const sanitizeSupItem = (item: any, typeKey: string) => {
+          const matchedLocal = localSupImages.find(i => i.name.toLowerCase().includes(typeKey));
+          let img = matchedLocal ? matchedLocal.url : "";
+          if (!img && item && item.imageUrl && item.imageUrl.startsWith("/uploads/")) {
+            img = item.imageUrl;
+          }
+          return { ...(item || {}), imageUrl: img };
         };
 
         const supRef = doc(db, "settings", "supervision_terms");
         const supSnap = await getDoc(supRef);
-        if (supSnap.exists()) {
-          const sData = supSnap.data();
-          const cleanTerm1 = sData.term1 ? {
-            onsite: sanitizeSupItem(sData.term1.onsite),
-            online1: sanitizeSupItem(sData.term1.online1),
-            online2: sanitizeSupItem(sData.term1.online2),
-          } : null;
-          const cleanTerm2 = sData.term2 ? {
-            onsite: sanitizeSupItem(sData.term2.onsite),
-            online1: sanitizeSupItem(sData.term2.online1),
-            online2: sanitizeSupItem(sData.term2.online2),
-          } : null;
-          setSupervision({ term1: cleanTerm1, term2: cleanTerm2 });
-        }
+        const sData = supSnap.exists() ? supSnap.data() : {};
+
+        const cleanTerm1 = {
+          onsite: sanitizeSupItem(sData.term1?.onsite, "onsite"),
+          online1: sanitizeSupItem(sData.term1?.online1, "online1"),
+          online2: sanitizeSupItem(sData.term1?.online2, "online2"),
+        };
+        const cleanTerm2 = {
+          onsite: sanitizeSupItem(sData.term2?.onsite, "onsite"),
+          online1: sanitizeSupItem(sData.term2?.online1, "online1"),
+          online2: sanitizeSupItem(sData.term2?.online2, "online2"),
+        };
+        setSupervision({ term1: cleanTerm1, term2: cleanTerm2 });
 
         // Fetch Student Works
         const q = query(collection(db, "student_works"), orderBy("createdAt", "desc"));

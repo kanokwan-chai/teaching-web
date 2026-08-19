@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const folder = searchParams.get("folder") || "";
+    const isRecursive = searchParams.get("recursive") === "true" || folder === "logs" || folder === "all" || folder === "";
 
     // Prevent path traversal
     const safeFolder = folder
@@ -13,36 +14,76 @@ export async function GET(request: Request) {
       .replace(/\.\./g, "")
       .replace(/^\/+|\/+$/g, "");
 
-    const targetDir = path.join(process.cwd(), "public", "uploads", safeFolder);
+    const baseUploads = path.join(process.cwd(), "public", "uploads");
+    const targetDir = path.join(baseUploads, safeFolder);
 
     if (!fs.existsSync(targetDir)) {
-      return NextResponse.json({ images: [], success: true });
+      return NextResponse.json({ images: [], tree: {}, success: true });
     }
 
-    const files = fs.readdirSync(targetDir);
     const validExtensions = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"];
+    const images: any[] = [];
+    const tree: Record<string, any[]> = {};
 
-    const images = files
-      .filter((file) => {
-        const ext = path.extname(file).toLowerCase();
-        const stat = fs.statSync(path.join(targetDir, file));
-        return stat.isFile() && validExtensions.includes(ext);
-      })
-      .map((file, index) => {
-        const publicPath = `/uploads/${safeFolder ? safeFolder + "/" : ""}${file}`;
-        return {
-          id: `local_${index}_${file}`,
-          url: publicPath,
-          name: file,
-          term: safeFolder.includes("term-2") ? 2 : 1,
-        };
-      });
+    function scanDir(currentDir: string) {
+      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+        if (entry.isDirectory()) {
+          if (isRecursive) {
+            scanDir(fullPath);
+          }
+        } else if (entry.isFile()) {
+          const ext = path.extname(entry.name).toLowerCase();
+          if (validExtensions.includes(ext)) {
+            const relativeFromUploads = path
+              .relative(baseUploads, fullPath)
+              .replace(/\\/g, "/");
+            const relDir = path.dirname(relativeFromUploads).replace(/\\/g, "/");
 
-    return NextResponse.json({ images, success: true });
+            // Extract term and week number if present
+            let term = 1;
+            if (relativeFromUploads.includes("term-2")) term = 2;
+            else if (relativeFromUploads.includes("term-1")) term = 1;
+
+            let weekNumber = null;
+            const weekMatch = relativeFromUploads.match(/week-(\d+)/i);
+            if (weekMatch) weekNumber = Number(weekMatch[1]);
+
+            const item = {
+              id: `local_${relativeFromUploads.replace(/[^a-zA-Z0-9_-]/g, "_")}`,
+              url: `/uploads/${relativeFromUploads}`,
+              name: entry.name,
+              folder: relDir,
+              term,
+              weekNumber,
+            };
+
+            images.push(item);
+
+            if (!tree[relDir]) {
+              tree[relDir] = [];
+            }
+            tree[relDir].push(item);
+          }
+        }
+      }
+    }
+
+    scanDir(targetDir);
+
+    return NextResponse.json(
+      { images, tree, success: true },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Error reading local images:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to scan local folder", images: [] },
+      { error: error.message || "Failed to scan local folder", images: [], tree: {} },
       { status: 500 }
     );
   }

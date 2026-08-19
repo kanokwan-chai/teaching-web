@@ -65,6 +65,8 @@ export default function ImageCarousel({
           <img 
             src={images[0].url} 
             alt="Single Image" 
+            loading="lazy"
+            decoding="async"
             className={`w-full h-full object-${imageFit} bg-black/5`}
           />
         </div>
@@ -111,6 +113,8 @@ export default function ImageCarousel({
             <img 
               src={img.url} 
               alt="Gallery Image" 
+              loading="lazy"
+              decoding="async"
               className={`w-full h-full object-${imageFit} ${imageFit === 'cover' ? 'group-hover/item:scale-110 transition-transform duration-700' : 'bg-black/5'}`} 
             />
             {imageFit === 'cover' && (

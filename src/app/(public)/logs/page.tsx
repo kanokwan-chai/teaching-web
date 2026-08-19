@@ -25,20 +25,21 @@ export default function LogsPage() {
           logsData.push({ id: doc.id, ...doc.data() });
         });
 
-        // Scan local week-1 to week-20 folders for term 1 & term 2
+        // Scan ALL local log folders in 1 single fast API call
         const localWeeklyLogs: any[] = [];
-        for (let t = 1; t <= 2; t++) {
-          for (let w = 1; w <= 20; w++) {
-            try {
-              const res = await fetch(`/api/local-images?folder=logs/term-${t}/week-${w}`);
-              const json = await res.json();
-              if (json.images && json.images.length > 0) {
-                const urls = json.images.map((i: any) => i.url);
-                
-                // Check if DB already has log for this term & week
+        try {
+          const res = await fetch("/api/local-images?folder=logs&recursive=true");
+          const json = await res.json();
+          const tree = json.tree || {};
+
+          for (let t = 1; t <= 2; t++) {
+            for (let w = 1; w <= 20; w++) {
+              const folderKey = `logs/term-${t}/week-${w}`;
+              const folderImages = tree[folderKey] || [];
+              if (folderImages.length > 0) {
+                const urls = folderImages.map((i: any) => i.url);
                 const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
                 if (existingDbIndex !== -1) {
-                  // Keep only local /uploads/ urls
                   const dbLog = logsData[existingDbIndex];
                   const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
                   const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
@@ -48,7 +49,6 @@ export default function LogsPage() {
                     imageUrl: mergedUrls[0] || ""
                   };
                 } else {
-                  // Push local log item
                   localWeeklyLogs.push({
                     id: `local_log_t${t}_w${w}`,
                     term: t,
@@ -60,10 +60,10 @@ export default function LogsPage() {
                   });
                 }
               }
-            } catch (err) {
-              // ignore fetch error for empty folder
             }
           }
+        } catch (err) {
+          console.error("Error scanning local logs:", err);
         }
 
         // Clean up logsData so any non-merged DB logs also strip out non-local URLs

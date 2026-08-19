@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Loader2, UploadCloud, FileText } from "lucide-react";
+import { Save, Loader2, UploadCloud, FileText, X } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { uploadImage } from "@/lib/upload";
@@ -183,9 +183,37 @@ export default function SupervisionForm() {
               }} 
             />
             {record.file ? (
-              <img src={URL.createObjectURL(record.file)} alt="Preview" className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+              <div className="relative w-full h-full">
+                <img src={URL.createObjectURL(record.file)} alt="Preview" className="w-full h-full object-cover group-hover:opacity-80 transition-opacity rounded-xl" />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleChange(type, "file", null);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition-colors z-20"
+                  title="ลบรูปภาพ"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             ) : record.imageUrl ? (
-              <img src={record.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+              <div className="relative w-full h-full">
+                <img src={record.imageUrl} alt="Preview" className="w-full h-full object-cover group-hover:opacity-80 transition-opacity rounded-xl" />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleChange(type, "imageUrl", "");
+                  }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition-colors z-20"
+                  title="ลบรูปภาพ"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             ) : (
               <>
                 <UploadCloud size={24} className="mb-2" />

@@ -13,10 +13,20 @@ export default function AboutPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        let localProfUrl = "";
+        const profRes = await fetch("/api/local-images?folder=profile");
+        const profData = await profRes.json();
+        if (profData.images && profData.images.length > 0) {
+          localProfUrl = profData.images[0].url;
+        }
+
         const docRef = doc(db, "settings", "profile");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile(docSnap.data());
+          const dbData = docSnap.data();
+          setProfile({ ...dbData, imageUrl: localProfUrl || dbData.imageUrl });
+        } else if (localProfUrl) {
+          setProfile({ imageUrl: localProfUrl, name: "นางสาวกนกวรรณ ชัยชนะ" });
         }
       } catch (error) {
         console.error("Error fetching profile:", error);

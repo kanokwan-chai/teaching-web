@@ -17,14 +17,56 @@ export default function LogsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Teaching Logs
+        // Fetch Teaching Logs from DB
         const logsQ = query(collection(db, "teaching_logs"), orderBy("weekNumber", "asc"));
         const logsSnapshot = await getDocs(logsQ);
         const logsData: any[] = [];
         logsSnapshot.forEach((doc) => {
           logsData.push({ id: doc.id, ...doc.data() });
         });
-        setTeachingLogs(logsData);
+
+        // Scan local week-1 to week-20 folders for term 1 & term 2
+        const localWeeklyLogs: any[] = [];
+        for (let t = 1; t <= 2; t++) {
+          for (let w = 1; w <= 20; w++) {
+            try {
+              const res = await fetch(`/api/local-images?folder=logs/term-${t}/week-${w}`);
+              const json = await res.json();
+              if (json.images && json.images.length > 0) {
+                const urls = json.images.map((i: any) => i.url);
+                
+                // Check if DB already has log for this term & week
+                const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
+                if (existingDbIndex !== -1) {
+                  // Merge local urls into DB log
+                  const dbLog = logsData[existingDbIndex];
+                  const mergedUrls = Array.from(new Set([...urls, ...(dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : []))]));
+                  logsData[existingDbIndex] = {
+                    ...dbLog,
+                    imageUrls: mergedUrls,
+                    imageUrl: mergedUrls[0]
+                  };
+                } else {
+                  // Push local log item
+                  localWeeklyLogs.push({
+                    id: `local_log_t${t}_w${w}`,
+                    term: t,
+                    weekNumber: w,
+                    dateRange: `สัปดาห์ที่ ${w}`,
+                    imageUrls: urls,
+                    imageUrl: urls[0],
+                    activities: []
+                  });
+                }
+              }
+            } catch (err) {
+              // ignore fetch error for empty folder
+            }
+          }
+        }
+
+        const combinedLogs = [...logsData, ...localWeeklyLogs].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
+        setTeachingLogs(combinedLogs);
 
         // Fetch Supervision
         const supRef = doc(db, "settings", "supervision_terms");

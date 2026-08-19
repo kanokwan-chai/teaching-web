@@ -23,10 +23,29 @@ export default function Home() {
           setSettings(docSnap.data());
         }
 
-        const galleryRef = doc(db, "gallery", "images");
-        const gallerySnap = await getDoc(galleryRef);
-        if (gallerySnap.exists()) {
-          setGalleryImages(gallerySnap.data().items || []);
+        // Fetch profile local image
+        const profRes = await fetch("/api/local-images?folder=profile");
+        const profData = await profRes.json();
+        let localProfileUrl = "";
+        if (profData.images && profData.images.length > 0) {
+          localProfileUrl = profData.images[0].url;
+        }
+
+        // Fetch local gallery images for term 1 & term 2
+        const t1Res = await fetch("/api/local-images?folder=gallery/term-1");
+        const t1Data = await t1Res.json();
+        const localT1 = t1Data.images || [];
+
+        const t2Res = await fetch("/api/local-images?folder=gallery/term-2");
+        const t2Data = await t2Res.json();
+        const localT2 = t2Data.images || [];
+
+        const gallerySnap = await getDoc(doc(db, "gallery", "images"));
+        const dbItems = gallerySnap.exists() ? (gallerySnap.data().items || []) : [];
+        setGalleryImages([...localT1, ...localT2, ...dbItems]);
+
+        if (localProfileUrl) {
+          setSettings((prev: any) => ({ ...prev, imageUrl: localProfileUrl }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

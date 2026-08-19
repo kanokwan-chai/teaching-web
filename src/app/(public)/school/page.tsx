@@ -21,10 +21,27 @@ export default function SchoolPage() {
   useEffect(() => {
     const fetchSchoolData = async () => {
       try {
+        let localData: any = {};
+        const res = await fetch("/api/local-images?folder=school");
+        const json = await res.json();
+        if (json.images && json.images.length > 0) {
+          const imgs = json.images;
+          // Look for logo, main image, org chart by name or index
+          const logo = imgs.find((i: any) => i.name.includes("logo") || i.name.startsWith("1.")) || imgs[0];
+          const mainImg = imgs.find((i: any) => i.name.includes("building") || i.name.includes("school") || i.name.startsWith("2.")) || (imgs[1] || imgs[0]);
+          const orgChart = imgs.find((i: any) => i.name.includes("org") || i.name.startsWith("3.")) || imgs[2];
+
+          if (logo) localData.logoUrl = logo.url;
+          if (mainImg) localData.imageUrl = mainImg.url;
+          if (orgChart) localData.orgChartUrl = orgChart.url;
+        }
+
         const docRef = doc(db, "school", "info");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setSchoolData(docSnap.data() as any);
+          setSchoolData(prev => ({ ...prev, ...(docSnap.data() as any), ...localData }));
+        } else if (Object.keys(localData).length > 0) {
+          setSchoolData(prev => ({ ...prev, ...localData }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

@@ -80,17 +80,22 @@ export default function LogsPage() {
         setTeachingLogs(combinedLogs);
 
         // Fetch Supervision
-        let localSupImages: any[] = [];
+        let supT1Images: any[] = [];
+        let supT2Images: any[] = [];
         try {
-          const supRes = await fetch("/api/local-images?folder=logs/supervision");
-          const supJson = await supRes.json();
-          localSupImages = supJson.images || [];
+          const res1 = await fetch("/api/local-images?folder=logs/supervision/term-1");
+          const json1 = await res1.json();
+          supT1Images = json1.images || [];
+
+          const res2 = await fetch("/api/local-images?folder=logs/supervision/term-2");
+          const json2 = await res2.json();
+          supT2Images = json2.images || [];
         } catch (e) {
           // ignore
         }
 
-        const sanitizeSupItem = (item: any, typeKey: string) => {
-          const matchedLocal = localSupImages.find(i => i.name.toLowerCase().includes(typeKey));
+        const sanitizeSupItem = (item: any, typeKey: string, localList: any[]) => {
+          const matchedLocal = localList.find(i => i.name.toLowerCase().includes(typeKey)) || localList[0];
           let img = matchedLocal ? matchedLocal.url : "";
           if (!img && item && item.imageUrl && item.imageUrl.startsWith("/uploads/")) {
             img = item.imageUrl;
@@ -103,14 +108,14 @@ export default function LogsPage() {
         const sData = supSnap.exists() ? supSnap.data() : {};
 
         const cleanTerm1 = {
-          onsite: sanitizeSupItem(sData.term1?.onsite, "onsite"),
-          online1: sanitizeSupItem(sData.term1?.online1, "online1"),
-          online2: sanitizeSupItem(sData.term1?.online2, "online2"),
+          onsite: sanitizeSupItem(sData.term1?.onsite, "onsite", supT1Images),
+          online1: sanitizeSupItem(sData.term1?.online1, "online1", supT1Images),
+          online2: sanitizeSupItem(sData.term1?.online2, "online2", supT1Images),
         };
         const cleanTerm2 = {
-          onsite: sanitizeSupItem(sData.term2?.onsite, "onsite"),
-          online1: sanitizeSupItem(sData.term2?.online1, "online1"),
-          online2: sanitizeSupItem(sData.term2?.online2, "online2"),
+          onsite: sanitizeSupItem(sData.term2?.onsite, "onsite", supT2Images),
+          online1: sanitizeSupItem(sData.term2?.online1, "online1", supT2Images),
+          online2: sanitizeSupItem(sData.term2?.online2, "online2", supT2Images),
         };
         setSupervision({ term1: cleanTerm1, term2: cleanTerm2 });
 

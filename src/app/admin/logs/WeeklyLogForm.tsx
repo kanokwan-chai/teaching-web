@@ -108,7 +108,8 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       let finalImageUrls = [...weekImageUrls];
       
       if (weekFiles.length > 0) {
-        const uploadedUrls = await Promise.all(weekFiles.map(file => uploadImage(file, `logs/term-${term}`)));
+        const folderPath = `logs/term-${term}/week-${weekNumber || 1}`;
+        const uploadedUrls = await Promise.all(weekFiles.map(file => uploadImage(file, folderPath)));
         finalImageUrls = [...finalImageUrls, ...uploadedUrls];
       }
 

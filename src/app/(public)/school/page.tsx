@@ -26,10 +26,12 @@ export default function SchoolPage() {
         const json = await res.json();
         if (json.images && json.images.length > 0) {
           const imgs = json.images;
-          // Look for logo, main image, org chart by name or index
+          // 1.* or logo -> Logo
           const logo = imgs.find((i: any) => i.name.includes("logo") || i.name.startsWith("1.")) || imgs[0];
-          const mainImg = imgs.find((i: any) => i.name.includes("building") || i.name.includes("school") || i.name.startsWith("2.")) || (imgs[1] || imgs[0]);
-          const orgChart = imgs.find((i: any) => i.name.includes("org") || i.name.startsWith("3.")) || imgs[2];
+          // 3.* or building/school -> Main School Image (รูปวิทยาลัย)
+          const mainImg = imgs.find((i: any) => i.name.includes("building") || i.name.includes("school") || i.name.startsWith("3.")) || imgs.find((i: any) => i.name.startsWith("2.")) || imgs[0];
+          // 2.* or org/chart -> Org Chart (ผังองค์กร)
+          const orgChart = imgs.find((i: any) => i.name.includes("org") || i.name.includes("chart") || i.name.startsWith("2.")) || imgs[1];
 
           if (logo) localData.logoUrl = logo.url;
           if (mainImg) localData.imageUrl = mainImg.url;

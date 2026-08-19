@@ -80,23 +80,23 @@ export default function LogsPage() {
         setTeachingLogs(combinedLogs);
 
         // Fetch Supervision
-        let supT1Images: any[] = [];
-        let supT2Images: any[] = [];
+        let supAllImages: any[] = [];
         try {
-          const res1 = await fetch("/api/local-images?folder=logs/supervision/term-1");
-          const json1 = await res1.json();
-          supT1Images = json1.images || [];
-
-          const res2 = await fetch("/api/local-images?folder=logs/supervision/term-2");
-          const json2 = await res2.json();
-          supT2Images = json2.images || [];
+          const resAll = await fetch("/api/local-images?folder=logs/supervision&recursive=true");
+          const jsonAll = await resAll.json();
+          supAllImages = jsonAll.images || [];
         } catch (e) {
           // ignore
         }
 
-        const sanitizeSupItem = (item: any, typeKey: string, localList: any[]) => {
-          const matchedLocal = localList.find(i => i.name.toLowerCase().includes(typeKey)) || localList[0];
-          let img = matchedLocal ? matchedLocal.url : "";
+        const sanitizeSupItem = (item: any, typeKey: string, term: number) => {
+          const termImages = supAllImages.filter(i => i.term === term || i.folder.includes(`term-${term}`) || i.folder === "logs/supervision");
+          let matched = termImages.find(i => i.name.toLowerCase().includes(typeKey));
+          if (!matched && typeKey === "onsite") matched = termImages.find(i => i.name.startsWith("1.") || i.name.startsWith("onsite"));
+          if (!matched && typeKey === "online1") matched = termImages.find(i => i.name.startsWith("2.") || i.name.startsWith("online1"));
+          if (!matched && typeKey === "online2") matched = termImages.find(i => i.name.startsWith("3.") || i.name.startsWith("online2"));
+
+          let img = matched ? matched.url : "";
           if (!img && item && item.imageUrl && item.imageUrl.startsWith("/uploads/")) {
             img = item.imageUrl;
           }
@@ -108,14 +108,14 @@ export default function LogsPage() {
         const sData = supSnap.exists() ? supSnap.data() : {};
 
         const cleanTerm1 = {
-          onsite: sanitizeSupItem(sData.term1?.onsite, "onsite", supT1Images),
-          online1: sanitizeSupItem(sData.term1?.online1, "online1", supT1Images),
-          online2: sanitizeSupItem(sData.term1?.online2, "online2", supT1Images),
+          onsite: sanitizeSupItem(sData.term1?.onsite, "onsite", 1),
+          online1: sanitizeSupItem(sData.term1?.online1, "online1", 1),
+          online2: sanitizeSupItem(sData.term1?.online2, "online2", 1),
         };
         const cleanTerm2 = {
-          onsite: sanitizeSupItem(sData.term2?.onsite, "onsite", supT2Images),
-          online1: sanitizeSupItem(sData.term2?.online1, "online1", supT2Images),
-          online2: sanitizeSupItem(sData.term2?.online2, "online2", supT2Images),
+          onsite: sanitizeSupItem(sData.term2?.onsite, "onsite", 2),
+          online1: sanitizeSupItem(sData.term2?.online1, "online1", 2),
+          online2: sanitizeSupItem(sData.term2?.online2, "online2", 2),
         };
         setSupervision({ term1: cleanTerm1, term2: cleanTerm2 });
 

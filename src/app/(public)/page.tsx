@@ -159,7 +159,7 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.3 }}
         >
           <div className="w-48 h-48 md:w-56 md:h-56 rounded-full bg-white flex-shrink-0 flex items-center justify-center shadow-2xl neon-glow border-4 border-primary/20 relative overflow-hidden group p-3">
-            <img src={settings?.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUhN1uL-eya-663hhr7ScHaMgwNUBFz0NXKPhQ74t1FA&s"} className="w-full h-full object-cover rounded-full relative z-10" alt="Profile" />
+            <img src={settings?.imageUrl || ""} className="w-full h-full object-cover rounded-full relative z-10 bg-gray-100" alt="Profile" />
             <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-700 -skew-x-12 z-20 pointer-events-none"></div>
           </div>
 

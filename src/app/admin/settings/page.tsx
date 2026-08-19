@@ -10,7 +10,7 @@ export default function AdminSettingsDemo() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUhN1uL-eya-663hhr7ScHaMgwNUBFz0NXKPhQ74t1FA&s");
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "นางสาวกนกวรรณ ชัยชนะ",
     studentId: "6602041630012",

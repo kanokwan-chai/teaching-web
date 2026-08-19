@@ -16,7 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push("/login");
   };
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [logoUrl, setLogoUrl] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUhN1uL-eya-663hhr7ScHaMgwNUBFz0NXKPhQ74t1FA&s");
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     const fetchLogo = async () => {

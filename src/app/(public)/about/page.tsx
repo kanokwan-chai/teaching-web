@@ -61,9 +61,9 @@ export default function AboutPage() {
           >
             <div className="w-full h-full rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl rotate-[-3deg] hover:rotate-0 transition-all duration-500">
               <img 
-                src={profile.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUhN1uL-eya-663hhr7ScHaMgwNUBFz0NXKPhQ74t1FA&s"} 
+                src={profile.imageUrl || ""} 
                 alt="Creator" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover bg-gray-100"
               />
             </div>
           </motion.div>

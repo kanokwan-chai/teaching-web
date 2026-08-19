@@ -23,10 +23,8 @@ export default function SchedulePage() {
         const t2Data = await t2Res.json();
         const localT2 = t2Data.images || [];
 
-        const scheduleSnap = await getDoc(doc(db, "school", "schedule"));
-        const dbImages = (scheduleSnap.exists() && scheduleSnap.data().images) ? scheduleSnap.data().images : [];
-
-        setScheduleImages([...localT1, ...localT2, ...dbImages]);
+        // Only use local schedule images from public/uploads/
+        setScheduleImages([...localT1, ...localT2]);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

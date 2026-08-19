@@ -38,11 +38,24 @@ export default function SchoolPage() {
 
         const docRef = doc(db, "school", "info");
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setSchoolData(prev => ({ ...prev, ...(docSnap.data() as any), ...localData }));
-        } else if (Object.keys(localData).length > 0) {
-          setSchoolData(prev => ({ ...prev, ...localData }));
-        }
+        const dbData = docSnap.exists() ? (docSnap.data() as any) : {};
+        
+        // Strip out non-local image URLs
+        const sanitizeUrl = (url: string | undefined, localFallback: string | undefined) => {
+          if (localFallback) return localFallback;
+          if (url && url.startsWith("/uploads/")) return url;
+          return "";
+        };
+
+        setSchoolData({
+          name: dbData.name || "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
+          address: dbData.address || "-",
+          director: dbData.director || "-",
+          mentor: dbData.mentor || "-",
+          logoUrl: sanitizeUrl(dbData.logoUrl, localData.logoUrl),
+          imageUrl: sanitizeUrl(dbData.imageUrl, localData.imageUrl),
+          orgChartUrl: sanitizeUrl(dbData.orgChartUrl, localData.orgChartUrl),
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

@@ -40,12 +40,13 @@ export default function Home() {
         const t2Data = await t2Res.json();
         const localT2 = t2Data.images || [];
 
-        const gallerySnap = await getDoc(doc(db, "gallery", "images"));
-        const dbItems = gallerySnap.exists() ? (gallerySnap.data().items || []) : [];
-        setGalleryImages([...localT1, ...localT2, ...dbItems]);
+        // Only use local gallery images from public/uploads/
+        setGalleryImages([...localT1, ...localT2]);
 
         if (localProfileUrl) {
           setSettings((prev: any) => ({ ...prev, imageUrl: localProfileUrl }));
+        } else {
+          setSettings((prev: any) => ({ ...prev, imageUrl: "" }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

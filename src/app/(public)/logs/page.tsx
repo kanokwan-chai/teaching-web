@@ -38,13 +38,14 @@ export default function LogsPage() {
                 // Check if DB already has log for this term & week
                 const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
                 if (existingDbIndex !== -1) {
-                  // Merge local urls into DB log
+                  // Keep only local /uploads/ urls
                   const dbLog = logsData[existingDbIndex];
-                  const mergedUrls = Array.from(new Set([...urls, ...(dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : []))]));
+                  const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+                  const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
                   logsData[existingDbIndex] = {
                     ...dbLog,
                     imageUrls: mergedUrls,
-                    imageUrl: mergedUrls[0]
+                    imageUrl: mergedUrls[0] || ""
                   };
                 } else {
                   // Push local log item
@@ -65,20 +66,41 @@ export default function LogsPage() {
           }
         }
 
-        const combinedLogs = [...logsData, ...localWeeklyLogs].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
+        // Clean up logsData so any non-merged DB logs also strip out non-local URLs
+        const sanitizedLogsData = logsData.map(l => {
+          const cleanUrls = (l.imageUrls || (l.imageUrl ? [l.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+          return {
+            ...l,
+            imageUrls: cleanUrls,
+            imageUrl: cleanUrls[0] || ""
+          };
+        });
+
+        const combinedLogs = [...sanitizedLogsData, ...localWeeklyLogs].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
         setTeachingLogs(combinedLogs);
 
         // Fetch Supervision
+        const sanitizeSupItem = (item: any) => {
+          if (!item) return item;
+          const img = item.imageUrl && item.imageUrl.startsWith("/uploads/") ? item.imageUrl : "";
+          return { ...item, imageUrl: img };
+        };
+
         const supRef = doc(db, "settings", "supervision_terms");
         const supSnap = await getDoc(supRef);
         if (supSnap.exists()) {
-          setSupervision(supSnap.data());
-        } else {
-          const oldRef = doc(db, "settings", "supervision");
-          const oldSnap = await getDoc(oldRef);
-          if (oldSnap.exists()) {
-            setSupervision({ term1: oldSnap.data(), term2: null });
-          }
+          const sData = supSnap.data();
+          const cleanTerm1 = sData.term1 ? {
+            onsite: sanitizeSupItem(sData.term1.onsite),
+            online1: sanitizeSupItem(sData.term1.online1),
+            online2: sanitizeSupItem(sData.term1.online2),
+          } : null;
+          const cleanTerm2 = sData.term2 ? {
+            onsite: sanitizeSupItem(sData.term2.onsite),
+            online1: sanitizeSupItem(sData.term2.online1),
+            online2: sanitizeSupItem(sData.term2.online2),
+          } : null;
+          setSupervision({ term1: cleanTerm1, term2: cleanTerm2 });
         }
 
         // Fetch Student Works

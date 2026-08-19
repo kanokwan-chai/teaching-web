@@ -1,48 +1,40 @@
 import imageCompression from 'browser-image-compression';
 
 /**
- * Uploads an image file to Cloudinary and returns the URL.
- * Requires NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env.local
+ * Uploads an image file to local public/uploads directory.
+ * Returns the public URL path (e.g. /uploads/gallery/term-1/image.jpg)
  */
-export async function uploadImage(file: File, folder: string = "teaching-practicum"): Promise<string> {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error("Missing Cloudinary configuration. Please add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your .env.local file.");
-  }
-
-  // Compress image before upload
-  const options = {
-    maxSizeMB: 1, // Max 1MB
-    maxWidthOrHeight: 1920,
-    useWebWorker: true
-  };
-  
-  let compressedFile = file;
-  try {
-    compressedFile = await imageCompression(file, options);
-  } catch (error) {
-    console.warn("Image compression failed, using original file", error);
+export async function uploadImage(file: File, folder: string = "general"): Promise<string> {
+  // Compress image before upload if client-side
+  let fileToUpload = file;
+  if (typeof window !== "undefined") {
+    const options = {
+      maxSizeMB: 1, // Max 1MB
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    };
+    
+    try {
+      fileToUpload = await imageCompression(file, options);
+    } catch (error) {
+      console.warn("Image compression failed, using original file", error);
+    }
   }
 
   const formData = new FormData();
-  formData.append("file", compressedFile);
-  formData.append("upload_preset", uploadPreset);
-  if (folder) {
-    formData.append("folder", folder);
-  }
+  formData.append("file", fileToUpload);
+  formData.append("folder", folder);
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+  const response = await fetch("/api/upload", {
     method: "POST",
     body: formData,
   });
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error?.message || "Failed to upload image to Cloudinary");
+    throw new Error(errorData.error || "Failed to upload image locally");
   }
 
   const data = await response.json();
-  return data.secure_url;
+  return data.url;
 }

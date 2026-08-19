@@ -58,7 +58,7 @@ export default function AdminSettingsDemo() {
       let finalImageUrl = formData.imageUrl;
 
       if (file) {
-        finalImageUrl = await uploadImage(file);
+        finalImageUrl = await uploadImage(file, "profile");
       }
 
       await setDoc(doc(db, "settings", "profile"), {

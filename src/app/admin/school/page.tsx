@@ -71,17 +71,17 @@ export default function AdminSchool() {
 
       // Upload main image
       if (imageFile) {
-        updatedData.imageUrl = await uploadImage(imageFile);
+        updatedData.imageUrl = await uploadImage(imageFile, "school");
       }
 
       // Upload logo
       if (logoFile) {
-        updatedData.logoUrl = await uploadImage(logoFile);
+        updatedData.logoUrl = await uploadImage(logoFile, "school");
       }
 
       // Upload org chart
       if (orgChartFile) {
-        updatedData.orgChartUrl = await uploadImage(orgChartFile);
+        updatedData.orgChartUrl = await uploadImage(orgChartFile, "school");
       }
 
       await setDoc(doc(db, "school", "info"), updatedData);

@@ -38,7 +38,7 @@ export default function AdminSchedule() {
       const newImages = [...scheduleImages];
       
       for (let i = 0; i < files.length; i++) {
-        const url = await uploadImage(files[i]);
+        const url = await uploadImage(files[i], `schedule/term-${selectedTerm}`);
         newImages.push({
           id: `${Date.now()}_${i}`,
           url,

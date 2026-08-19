@@ -91,7 +91,7 @@ export default function SupervisionForm() {
       const processRecord = async (record: SupRecord) => {
         let uploadedUrl = record.imageUrl;
         if (record.file) {
-          uploadedUrl = await uploadImage(record.file);
+          uploadedUrl = await uploadImage(record.file, "logs/supervision");
         }
         return {
           date: record.date || "",

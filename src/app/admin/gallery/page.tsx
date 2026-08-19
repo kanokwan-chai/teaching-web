@@ -44,7 +44,7 @@ export default function AdminGallery() {
       // Upload all files in parallel via ImgBB
       const uploadPromises = files.map(async (file, i) => {
         const imageId = `${Date.now()}_${i}`;
-        const url = await uploadImage(file);
+        const url = await uploadImage(file, `gallery/term-${selectedTerm}`);
         return { id: imageId, url, term: selectedTerm };
       });
 

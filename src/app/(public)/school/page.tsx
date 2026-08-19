@@ -26,12 +26,12 @@ export default function SchoolPage() {
         const json = await res.json();
         if (json.images && json.images.length > 0) {
           const imgs = json.images;
-          // 1.* -> Logo
+          // 1.* -> Logo (ตราโลโก้วิทยาลัย)
           const logo = imgs.find((i: any) => i.name.startsWith("1.")) || imgs[0];
-          // 3.* (School building) -> Top Main Image
-          const mainImg = imgs.find((i: any) => i.name.startsWith("3.")) || imgs.find((i: any) => i.name.includes("building") || i.name.includes("school")) || imgs[0];
-          // 2.* (Org chart) -> Bottom Org Chart Section
-          const orgChart = imgs.find((i: any) => i.name.startsWith("2.")) || imgs.find((i: any) => i.name.includes("org") || i.name.includes("chart")) || imgs[1];
+          // 2.* -> Top Main Image (รูปตัวอาคาร/ป้ายวิทยาลัย ด้านบน)
+          const mainImg = imgs.find((i: any) => i.name.startsWith("2.")) || imgs.find((i: any) => i.name.includes("building") || i.name.includes("school")) || imgs[0];
+          // 3.* -> Bottom Org Chart (แผนผังองค์กร ด้านล่าง)
+          const orgChart = imgs.find((i: any) => i.name.startsWith("3.")) || imgs.find((i: any) => i.name.includes("org") || i.name.includes("chart")) || imgs[1];
 
           if (logo) localData.logoUrl = logo.url;
           if (mainImg) localData.imageUrl = mainImg.url;

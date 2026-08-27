@@ -7,15 +7,15 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 export default function SchoolPage() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [schoolData, setSchoolData] = useState({
     name: "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
-    address: "-",
-    director: "-",
-    mentor: "-",
-    imageUrl: "",
-    logoUrl: "",
-    orgChartUrl: ""
+    address: "456/3 ถนนตลาดใหม่ ตำบลตลาด อำเภอเมือง จังหวัดสุราษฎร์ธานี เบอร์โทรศัพท์: 077-282001",
+    director: "นายพงษ์ศักดิ์ นุ้ยเจริญ",
+    mentor: "นายวิวิต สืบสอน และ นายเมธาสิทธิ์ พลวิธรนันท์",
+    imageUrl: "/uploads/school/2.jpg",
+    logoUrl: "/uploads/school/1.png",
+    orgChartUrl: "/uploads/school/3.webp"
   });
 
   useEffect(() => {

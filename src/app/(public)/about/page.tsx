@@ -7,8 +7,17 @@ import { doc, getDoc } from "firebase/firestore";
 import { motion } from "framer-motion";
 
 export default function AboutPage() {
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<any>({
+    name: "นางสาวกนกวรรณ ชัยชนะ",
+    studentId: "6402041620123",
+    faculty: "ครุศาสตร์อุตสาหกรรม",
+    major: "เทคโนโลยีคอมพิวเตอร์",
+    department: "เทคโนโลยีคอมพิวเตอร์",
+    university: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+    school: "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
+    imageUrl: "/uploads/profile/1.jpg"
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {

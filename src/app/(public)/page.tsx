@@ -8,9 +8,18 @@ import ImageCarousel from "@/components/ImageCarousel";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<any>({
+    title: "รายงานการฝึกสอน",
+    department: "เทคโนโลยีคอมพิวเตอร์",
+    major: "เทคโนโลยีคอมพิวเตอร์",
+    faculty: "ครุศาสตร์อุตสาหกรรม",
+    university: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+    name: "นางสาวกนกวรรณ ชัยชนะ",
+    studentId: "6402041620123",
+    school: "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
+    imageUrl: "/uploads/profile/1.jpg"
+  });
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
 
   useEffect(() => {
@@ -149,11 +158,11 @@ export default function Home() {
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-white flex items-center justify-center text-white text-5xl font-bold mb-8 neon-glow overflow-hidden border-4 border-primary/20 p-2">
                 <img src="/system-logo.png" className="w-full h-full object-contain rounded-full" alt="System Logo" id="system-logo-intro" />
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 tracking-tight">รายงานการฝึกสอน</h1>
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 tracking-tight">{settings?.title || "รายงานการฝึกสอน"}</h1>
               <p className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-2xl leading-relaxed">
-                สาขาวิชา{settings?.major || "..."}<br />
-                คณะ{settings?.faculty || "..."}<br />
-                {settings?.university || "..."}
+                สาขาวิชา{settings?.department || settings?.major || "เทคโนโลยีคอมพิวเตอร์"}<br />
+                คณะ{settings?.faculty || "ครุศาสตร์อุตสาหกรรม"}<br />
+                {settings?.university || "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ"}
               </p>
 
               <motion.button

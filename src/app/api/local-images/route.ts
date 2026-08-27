@@ -36,10 +36,15 @@ export async function GET(request: Request) {
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name).toLowerCase();
           if (validExtensions.includes(ext)) {
+            // Always normalize path separators to forward slashes '/' for cross-platform compatibility (Windows & Linux)
             const relativeFromUploads = path
               .relative(baseUploads, fullPath)
-              .replace(/\\/g, "/");
-            const relDir = path.dirname(relativeFromUploads).replace(/\\/g, "/");
+              .split(path.sep)
+              .join("/");
+
+            const relDir = relativeFromUploads.includes("/")
+              ? relativeFromUploads.substring(0, relativeFromUploads.lastIndexOf("/"))
+              : "";
 
             // Extract term and week number if present
             let term = 1;

@@ -8,6 +8,7 @@ import ImageCarousel from "@/components/ImageCarousel";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
   const [settings, setSettings] = useState<any>({
     title: "รายงานการฝึกสอน",

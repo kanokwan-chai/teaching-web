@@ -33,6 +33,37 @@ export default function AdminLogs() {
       logsSnapshot.forEach((doc) => {
         logsData.push({ id: doc.id, ...doc.data() });
       });
+
+      // Merge local images
+      try {
+        const res = await fetch("/api/local-images?folder=logs&recursive=true");
+        const json = await res.json();
+        const tree = json.tree || {};
+
+        for (let t = 1; t <= 2; t++) {
+          for (let w = 1; w <= 20; w++) {
+            const folderKey = `logs/term-${t}/week-${w}`;
+            const folderImages = tree[folderKey] || [];
+            if (folderImages.length > 0) {
+              const urls = folderImages.map((i: any) => i.url);
+              const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
+              if (existingDbIndex !== -1) {
+                const dbLog = logsData[existingDbIndex];
+                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+                const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
+                logsData[existingDbIndex] = {
+                  ...dbLog,
+                  imageUrls: mergedUrls,
+                  imageUrl: mergedUrls[0] || ""
+                };
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Error scanning local logs in admin:", e);
+      }
+
       setTeachingLogs(logsData);
 
 
@@ -121,8 +152,7 @@ export default function AdminLogs() {
     <div>
       <div className="flex justify-between items-end mb-8">
         <header>
-          <h1 className="text-3xl font-bold text-foreground mb-2">บันทึกการสอน & ผลงานนักเรียน</h1>
-          <p className="text-foreground/60">เพิ่มบันทึกการสอนรายสัปดาห์ และอัปโหลดผลงานนักเรียน</p>
+          <h1 className="text-3xl font-bold text-foreground">บันทึกการสอน & ผลงานนักเรียน</h1>
         </header>
       </div>
 

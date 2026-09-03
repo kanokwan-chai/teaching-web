@@ -6,6 +6,7 @@ import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon } fro
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import ImageCarousel from "@/components/ImageCarousel";
+import WeeklyLogSlider from "@/components/WeeklyLogSlider";
 
 export default function LogsPage() {
   const [loading, setLoading] = useState(true);
@@ -156,10 +157,7 @@ export default function LogsPage() {
         <div className="inline-flex items-center justify-center p-6 bg-primary/10 rounded-full text-primary mb-6 neon-glow border border-primary/20">
           <FileText size={48} />
         </div>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight">บันทึกการสอน</h1>
-        <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-8">
-          รายงานบันทึกการสอนประจำสัปดาห์ และผลงานชิ้นงานของนักเรียน
-        </p>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-8 tracking-tight">บันทึกการสอน</h1>
         
         <div className="flex bg-white/50 p-1.5 rounded-2xl border border-white shadow-lg backdrop-blur-md">
           <button 
@@ -291,30 +289,12 @@ export default function LogsPage() {
                 <div className="flex flex-col lg:flex-row gap-8">
                   {/* Left: Image */}
                   <div className="lg:w-1/3 flex-shrink-0">
-                    {log.imageUrls && log.imageUrls.length > 0 ? (
-                      <div className="aspect-square rounded-[2rem] overflow-hidden shadow-lg border-4 border-white group relative">
-                        {log.imageUrls.length > 1 ? (
-                          <ImageCarousel 
-                            images={log.imageUrls.map((url: string, index: number) => ({ id: index, url }))} 
-                            itemWidth="w-full"
-                            aspectRatio="aspect-square"
-                            imageFit="contain"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-black/5 flex items-center justify-center">
-                            <img src={log.imageUrls[0]} alt="Weekly Activities" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 pointer-events-none">
-                              <p className="text-white font-bold">ประมวลภาพสัปดาห์ที่ {log.weekNumber}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : log.imageUrl ? (
+                    {((log.imageUrls && log.imageUrls.length > 0) || log.imageUrl) ? (
                       <div className="aspect-square rounded-[2rem] overflow-hidden shadow-lg border-4 border-white group relative bg-black/5">
-                        <img src={log.imageUrl} alt="Weekly Activities" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 pointer-events-none">
-                          <p className="text-white font-bold">ประมวลภาพสัปดาห์ที่ {log.weekNumber}</p>
-                        </div>
+                        <WeeklyLogSlider 
+                          images={log.imageUrls && log.imageUrls.length > 0 ? log.imageUrls : [log.imageUrl]} 
+                          weekNumber={log.weekNumber} 
+                        />
                       </div>
                     ) : (
                       <div className="aspect-square rounded-[2rem] bg-white/40 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 shadow-inner">

@@ -77,6 +77,20 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
     }
   }, [editLog]);
 
+  useEffect(() => {
+    if (!editLog && weekNumber) {
+      fetch(`/api/local-images?folder=logs/term-${term}/week-${weekNumber}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.images && json.images.length > 0) {
+            const urls = json.images.map((img: any) => img.url);
+            setWeekImageUrls(urls);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [weekNumber, term, editLog]);
+
   const updateActivity = (index: number, field: keyof Activity, value: any) => {
     setActivities(prev => {
       const newActivities = [...prev];

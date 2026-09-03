@@ -148,8 +148,7 @@ export default function AdminLessons() {
     <div>
       <div className="flex justify-between items-end mb-8">
         <header>
-          <h1 className="text-3xl font-bold text-foreground mb-2">แผนการสอน (Lesson Plans)</h1>
-          <p className="text-foreground/60">จัดการแผนการเรียนรู้ แยกตามเทอม และครูพี่เลี้ยงประจำวิชา พร้อมระบบพรีวิวและแก้ไขข้อมูล</p>
+          <h1 className="text-3xl font-bold text-foreground">แผนการสอน (Lesson Plans)</h1>
         </header>
       </div>
 

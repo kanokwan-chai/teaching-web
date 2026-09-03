@@ -49,9 +49,6 @@ export default function ResearchPage() {
           <FileText size={32} />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">วิจัยในชั้นเรียน</h1>
-        <p className="text-foreground/70 max-w-2xl mx-auto">
-          แสดงรายการวิจัยในชั้นเรียนและผลงาน สามารถอ่านเอกสารวิจัย PDF และเปิดดูผลงานได้ทันที
-        </p>
       </motion.div>
 
       {researches.length === 0 ? (

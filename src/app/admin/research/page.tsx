@@ -118,8 +118,7 @@ export default function AdminResearch() {
     <div>
       <div className="flex justify-between items-end mb-8">
         <header>
-          <h1 className="text-3xl font-bold text-foreground mb-2">วิจัยในชั้นเรียน (Classroom Research)</h1>
-          <p className="text-foreground/60">เพิ่มลิงก์วิจัยในชั้นเรียน เพื่อนำไปพรีวิวแสดงผลในหน้าเว็บ</p>
+          <h1 className="text-3xl font-bold text-foreground">วิจัยในชั้นเรียน (Classroom Research)</h1>
         </header>
       </div>
 

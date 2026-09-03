@@ -60,9 +60,6 @@ export default function LessonsPage() {
           <BookOpen size={32} />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">แผนการจัดการเรียนรู้</h1>
-        <p className="text-foreground/70 max-w-2xl mx-auto">
-          รวมแผนการจัดการเรียนรู้แบ่งตามภาคเรียน พร้อมชื่อวิชา ครูพี่เลี้ยงประจำวิชา และระบบพรีวิว PDF ให้เลื่อนดูได้ทันที
-        </p>
       </motion.div>
 
       {/* Term Selector Tabs */}

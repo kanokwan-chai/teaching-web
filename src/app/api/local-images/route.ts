@@ -27,6 +27,8 @@ export async function GET(request: Request) {
 
     function scanDir(currentDir: string) {
       const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      entries.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
       for (const entry of entries) {
         const fullPath = path.join(currentDir, entry.name);
         if (entry.isDirectory()) {
@@ -81,7 +83,7 @@ export async function GET(request: Request) {
       { images, tree, success: true },
       {
         headers: {
-          "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
         },
       }
     );

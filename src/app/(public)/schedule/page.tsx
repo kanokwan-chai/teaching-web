@@ -53,9 +53,6 @@ export default function SchedulePage() {
           <BookOpen size={32} />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">ตารางสอน</h1>
-        <p className="text-foreground/70 text-lg max-w-2xl mx-auto">
-          ตารางการจัดกิจกรรมการเรียนการสอน (Teaching Schedule)
-        </p>
       </motion.div>
 
       {scheduleImages.length === 0 ? (

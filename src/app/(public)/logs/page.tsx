@@ -98,7 +98,7 @@ export default function LogsPage() {
           if (!matched && typeKey === "online2") matched = termImages.find(i => i.name.startsWith("3.") || i.name.startsWith("online2"));
 
           let img = matched ? matched.url : "";
-          if (!img && item && item.imageUrl && item.imageUrl.startsWith("/uploads/")) {
+          if (!img && item && item.imageUrl && (item.imageUrl.startsWith("/uploads/") || item.imageUrl.startsWith("data:"))) {
             img = item.imageUrl;
           }
           return { ...(item || {}), imageUrl: img };

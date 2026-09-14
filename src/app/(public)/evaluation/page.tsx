@@ -21,7 +21,21 @@ export default function EvaluationPage() {
         querySnapshot.forEach((doc) => {
           data.push({ id: doc.id, ...doc.data() });
         });
-        setEvaluations(data);
+        const defaultEvaluations = [
+          {
+            id: "default_eval_1",
+            title: "แบบประเมินผลการจัดการเรียนรู้ ภาคเรียนที่ 1",
+            term: 1,
+            pdfUrl: ""
+          },
+          {
+            id: "default_eval_2",
+            title: "แบบประเมินผลการจัดการเรียนรู้ ภาคเรียนที่ 2",
+            term: 2,
+            pdfUrl: ""
+          }
+        ];
+        setEvaluations(data.length > 0 ? data : defaultEvaluations);
       } catch (error) {
         console.error("Error fetching evaluations:", error);
       } finally {

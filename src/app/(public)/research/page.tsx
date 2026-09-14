@@ -20,7 +20,15 @@ export default function ResearchPage() {
         querySnapshot.forEach((doc) => {
           data.push({ id: doc.id, ...doc.data() });
         });
-        setResearches(data);
+        const defaultResearches = [
+          {
+            id: "default_research_1",
+            title: "การพัฒนาผลสัมฤทธิ์ทางการเรียนวิชาการสร้างเว็บไซต์ด้วยการเรียนรู้แบบใช้โครงงานเป็นฐาน (Project-Based Learning)",
+            pdfUrl: "",
+            workLink: ""
+          }
+        ];
+        setResearches(data.length > 0 ? data : defaultResearches);
       } catch (error) {
         console.error("Error fetching researches:", error);
       } finally {

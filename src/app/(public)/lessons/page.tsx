@@ -21,7 +21,27 @@ export default function LessonsPage() {
         querySnapshot.forEach((doc) => {
           data.push({ id: doc.id, ...doc.data() });
         });
-        setLessons(data);
+        const defaultLessons = [
+          {
+            id: "default_lesson_1",
+            title: "แผนการจัดการเรียนรู้ วิชาการสร้างเว็บไซต์",
+            subject: "การสร้างเว็บไซต์ (Web Construction)",
+            term: 1,
+            mentor: "นายวิวิต สืบสอน",
+            pdfUrl: "",
+            workLink: ""
+          },
+          {
+            id: "default_lesson_2",
+            title: "แผนการจัดการเรียนรู้ วิชาคณิตศาสตร์คอมพิวเตอร์",
+            subject: "คณิตศาสตร์คอมพิวเตอร์ (Computer Mathematics)",
+            term: 2,
+            mentor: "นายเมธาสิทธิ์ พลวิธรนันท์",
+            pdfUrl: "",
+            workLink: ""
+          }
+        ];
+        setLessons(data.length > 0 ? data : defaultLessons);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       } finally {

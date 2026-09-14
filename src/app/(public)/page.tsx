@@ -56,7 +56,7 @@ export default function Home() {
         if (localProfileUrl) {
           setSettings((prev: any) => ({ ...prev, imageUrl: localProfileUrl }));
         } else {
-          setSettings((prev: any) => ({ ...prev, imageUrl: "" }));
+          setSettings((prev: any) => ({ ...prev, imageUrl: "/system-logo.png" }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

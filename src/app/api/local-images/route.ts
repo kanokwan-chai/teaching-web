@@ -41,8 +41,7 @@ export async function GET(request: Request) {
             // Always normalize path separators to forward slashes '/' for cross-platform compatibility (Windows & Linux)
             const relativeFromUploads = path
               .relative(baseUploads, fullPath)
-              .split(path.sep)
-              .join("/");
+              .replace(/\\/g, "/");
 
             const relDir = relativeFromUploads.includes("/")
               ? relativeFromUploads.substring(0, relativeFromUploads.lastIndexOf("/"))

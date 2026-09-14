@@ -13,9 +13,9 @@ export default function SchoolPage() {
     address: "456/3 ถนนตลาดใหม่ ตำบลตลาด อำเภอเมือง จังหวัดสุราษฎร์ธานี เบอร์โทรศัพท์: 077-282001",
     director: "นายพงษ์ศักดิ์ นุ้ยเจริญ",
     mentor: "นายวิวิต สืบสอน และ นายเมธาสิทธิ์ พลวิธรนันท์",
-    imageUrl: "/uploads/school/2.jpg",
+    imageUrl: "/uploads/school/2.webp",
     logoUrl: "/uploads/school/1.png",
-    orgChartUrl: "/uploads/school/3.webp"
+    orgChartUrl: "/uploads/school/3.jpg"
   });
 
   useEffect(() => {

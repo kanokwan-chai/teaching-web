@@ -178,8 +178,8 @@ export default function LogsPage() {
       {/* Logic to get current term data */}
       {(() => {
         const currentSup = activeTerm === 1 ? supervision?.term1 : supervision?.term2;
-        const currentLogs = teachingLogs.filter(l => (l.term || 1) === activeTerm);
-        const currentWorks = works.filter(w => (w.term || 1) === activeTerm);
+        const currentLogs = teachingLogs.filter(l => Number(l.term || 1) === Number(activeTerm));
+        const currentWorks = works.filter(w => Number(w.term || 1) === Number(activeTerm));
 
         return (
           <>

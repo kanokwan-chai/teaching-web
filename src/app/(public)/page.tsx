@@ -78,9 +78,9 @@ export default function Home() {
 
   const activeGallery = galleryImages.length > 0 ? galleryImages : defaultGallery;
   const term1Images = activeGallery.filter(img => img.term === 1 || Number(img.term) === 1);
-  const term2Images = activeGallery.filter(img => img.term === 2 || Number(img.term) === 2);
+  const term2Images = galleryImages.filter(img => img.term === 2 || Number(img.term) === 2);
   const finalTerm1Images = term1Images.length > 0 ? term1Images : activeGallery;
-  const finalTerm2Images = term2Images.length > 0 ? term2Images : (term1Images.length > 0 ? term1Images : activeGallery);
+  const finalTerm2Images = term2Images;
 
   // Handle scroll to dismiss intro
   useEffect(() => {
@@ -254,19 +254,21 @@ export default function Home() {
             </div>
 
             {/* Term 2 */}
-            <div>
-              <h3 className="text-2xl font-bold text-accent mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]">2</span>
-                ภาคเรียนที่ 2
-              </h3>
-              <ImageCarousel 
-                images={finalTerm2Images} 
-                accentColor="accent" 
-                aspectRatio="aspect-square" 
-                imageFit="contain" 
-                itemWidth="w-[280px] md:w-[320px]"
-              />
-            </div>
+            {finalTerm2Images.length > 0 && (
+              <div>
+                <h3 className="text-2xl font-bold text-accent mb-6 flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]">2</span>
+                  ภาคเรียนที่ 2
+                </h3>
+                <ImageCarousel 
+                  images={finalTerm2Images} 
+                  accentColor="accent" 
+                  aspectRatio="aspect-square" 
+                  imageFit="contain" 
+                  itemWidth="w-[280px] md:w-[320px]"
+                />
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

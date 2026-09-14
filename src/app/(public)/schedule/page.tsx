@@ -25,17 +25,13 @@ export default function SchedulePage() {
           }
         }
 
-        // Fetch local schedule images for term 1 & term 2
+        // Fetch local schedule images for term 1
         const t1Res = await fetch("/api/local-images?folder=schedule/term-1");
         const t1Data = await t1Res.json();
         const localT1 = t1Data.images || [];
 
-        const t2Res = await fetch("/api/local-images?folder=schedule/term-2");
-        const t2Data = await t2Res.json();
-        const localT2 = t2Data.images || [];
-
-        // Combine DB and local schedule images, prioritizing DB images
-        setScheduleImages([...dbImages, ...localT1, ...localT2]);
+        // Combine DB and local schedule images
+        setScheduleImages([...dbImages, ...localT1]);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

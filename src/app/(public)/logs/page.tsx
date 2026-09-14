@@ -18,24 +18,37 @@ export default function LogsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Teaching Logs from DB without strict orderBy filter
+        // 1. Fetch Teaching Logs directly from Firebase Firestore
         const logsData: any[] = [];
         try {
           const logsSnapshot = await getDocs(collection(db, "teaching_logs"));
-          logsSnapshot.forEach((doc) => {
-            const d = doc.data();
+          logsSnapshot.forEach((docSnap) => {
+            const d = docSnap.data();
+            const weekNum = Number(d.weekNumber || d.week || 1);
+            const termNum = Number(d.term || 1);
+            
+            // Extract all image URLs from Firebase without stripping http/https/data URLs
+            const rawUrls = d.imageUrls || (d.imageUrl ? [d.imageUrl] : []);
+            const validUrls = Array.from(new Set(
+              rawUrls.filter((u: any) => u && typeof u === "string" && u.trim() !== "")
+            ));
+
             logsData.push({
-              id: doc.id,
+              id: docSnap.id,
               ...d,
-              weekNumber: Number(d.weekNumber || d.week || 1),
-              term: Number(d.term || 1),
+              weekNumber: weekNum,
+              term: termNum,
+              dateRange: d.dateRange || `สัปดาห์ที่ ${weekNum}`,
+              imageUrls: validUrls,
+              imageUrl: validUrls[0] || "",
+              activities: Array.isArray(d.activities) && d.activities.length > 0 ? d.activities : undefined
             });
           });
         } catch (dbErr) {
           console.warn("Firestore logs fetch notice:", dbErr);
         }
 
-        // Scan ALL local log folders in 1 single fast API call
+        // 2. Scan local folders and merge images onto DB records, or add local fallbacks ONLY for missing weeks
         const localWeeklyLogs: any[] = [];
         try {
           const res = await fetch("/api/local-images?folder=logs&recursive=true");
@@ -46,25 +59,28 @@ export default function LogsPage() {
             for (let w = 1; w <= 20; w++) {
               const folderKey = `logs/term-${t}/week-${w}`;
               const folderImages = tree[folderKey] || [];
-              const urls = folderImages.map((i: any) => i.url);
-              const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
+              const localUrls = folderImages.map((i: any) => i.url);
+
+              const existingDbIndex = logsData.findIndex(l => Number(l.term) === t && Number(l.weekNumber) === w);
+
               if (existingDbIndex !== -1) {
+                // Document exists in Firebase: preserve Firebase content 100%, append local image URLs if any
                 const dbLog = logsData[existingDbIndex];
-                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
-                const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
+                const mergedUrls = Array.from(new Set([...dbLog.imageUrls, ...localUrls]));
                 logsData[existingDbIndex] = {
                   ...dbLog,
                   imageUrls: mergedUrls,
-                  imageUrl: mergedUrls[0] || ""
+                  imageUrl: dbLog.imageUrl || mergedUrls[0] || ""
                 };
               } else {
+                // No document in Firebase: create fallback placeholder
                 localWeeklyLogs.push({
                   id: `local_log_t${t}_w${w}`,
                   term: t,
                   weekNumber: w,
                   dateRange: `สัปดาห์ที่ ${w}`,
-                  imageUrls: urls,
-                  imageUrl: urls[0] || "",
+                  imageUrls: localUrls,
+                  imageUrl: localUrls[0] || "",
                   activities: [
                     { dayName: "จันทร์", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาการสร้างเว็บไซต์ ปวช.1", leaveType: "none", isHoliday: false },
                     { dayName: "อังคาร", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาคณิตศาสตร์คอมพิวเตอร์", leaveType: "none", isHoliday: false },
@@ -80,17 +96,7 @@ export default function LogsPage() {
           console.error("Error scanning local logs:", err);
         }
 
-        // Clean up logsData so any non-merged DB logs also keep valid URLs
-        const sanitizedLogsData = logsData.map(l => {
-          const cleanUrls = (l.imageUrls || (l.imageUrl ? [l.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
-          return {
-            ...l,
-            imageUrls: cleanUrls,
-            imageUrl: cleanUrls[0] || ""
-          };
-        });
-
-        const combinedLogs = [...sanitizedLogsData, ...localWeeklyLogs].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
+        const combinedLogs = [...logsData, ...localWeeklyLogs].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
         setTeachingLogs(combinedLogs);
 
         // Fetch Supervision

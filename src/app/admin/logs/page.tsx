@@ -64,7 +64,7 @@ export default function AdminLogs() {
         const json = await res.json();
         const tree = json.tree || {};
 
-        for (let t = 1; t <= 2; t++) {
+        for (let t = 1; t <= 1; t++) {
           for (let w = 1; w <= 20; w++) {
             const folderKey = `logs/term-${t}/week-${w}`;
             const folderImages = tree[folderKey] || [];

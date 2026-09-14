@@ -29,17 +29,17 @@ export default function Home() {
       try {
         const docRef = doc(db, "settings", "profile");
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setSettings(docSnap.data());
-        }
+        const dbData = docSnap.exists() ? docSnap.data() : {};
 
         // Fetch profile local image
-        const profRes = await fetch("/api/local-images?folder=profile");
-        const profData = await profRes.json();
         let localProfileUrl = "";
-        if (profData.images && profData.images.length > 0) {
-          localProfileUrl = profData.images[0].url;
-        }
+        try {
+          const profRes = await fetch("/api/local-images?folder=profile");
+          const profData = await profRes.json();
+          if (profData.images && profData.images.length > 0) {
+            localProfileUrl = profData.images[0].url;
+          }
+        } catch (e) {}
 
         // Fetch local gallery images recursively
         const galRes = await fetch("/api/local-images?folder=gallery&recursive=true");
@@ -48,11 +48,20 @@ export default function Home() {
 
         setGalleryImages(localGal);
 
-        if (localProfileUrl) {
-          setSettings((prev: any) => ({ ...prev, imageUrl: localProfileUrl }));
-        } else {
-          setSettings((prev: any) => ({ ...prev, imageUrl: "/system-logo.png" }));
-        }
+        const finalImageUrl = dbData.imageUrl || localProfileUrl || "/uploads/profile/1.jpg";
+
+        setSettings({
+          title: "รายงานการฝึกสอน",
+          department: "เทคโนโลยีคอมพิวเตอร์",
+          major: "เทคโนโลยีคอมพิวเตอร์",
+          faculty: "ครุศาสตร์อุตสาหกรรม",
+          university: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+          name: "นางสาวกนกวรรณ ชัยชนะ",
+          studentId: "6402041620123",
+          school: "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
+          ...dbData,
+          imageUrl: finalImageUrl
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       }

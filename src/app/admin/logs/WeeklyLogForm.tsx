@@ -128,12 +128,19 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       }
 
       const logData = {
-        weekNumber: Number(weekNumber),
-        term: term,
-        dateRange,
-        imageUrls: finalImageUrls,
-        imageUrl: finalImageUrls.length > 0 ? finalImageUrls[0] : "", // for backward compatibility
-        activities: activities,
+        weekNumber: Number(weekNumber) || 1,
+        term: Number(term) || 1,
+        dateRange: dateRange || "",
+        imageUrls: finalImageUrls.map(u => u || ""),
+        imageUrl: finalImageUrls.length > 0 ? (finalImageUrls[0] || "") : "",
+        activities: activities.map(a => ({
+          dayName: a.dayName || "",
+          date: a.date || "",
+          activity: a.activity || "",
+          isHoliday: !!a.isHoliday,
+          leaveType: a.leaveType || "none",
+          activityLink: a.activityLink || ""
+        })),
         updatedAt: new Date().toISOString()
       };
 
@@ -159,9 +166,9 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       }
       
       onSaved();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving teaching log:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึก");
+      alert("เกิดข้อผิดพลาดในการบันทึก: " + (error?.message || String(error)));
     } finally {
       setSaving(false);
     }

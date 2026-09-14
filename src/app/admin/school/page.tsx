@@ -67,29 +67,38 @@ export default function AdminSchool() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      let updatedData = { ...data };
+      let updatedData = {
+        name: data.name || "",
+        address: data.address || "",
+        director: data.director || "",
+        mentor: data.mentor || "",
+        imageUrl: data.imageUrl || "",
+        logoUrl: data.logoUrl || "",
+        orgChartUrl: data.orgChartUrl || "",
+        updatedAt: new Date().toISOString()
+      };
 
       // Upload main image
       if (imageFile) {
-        updatedData.imageUrl = await uploadImage(imageFile, "school");
+        updatedData.imageUrl = (await uploadImage(imageFile, "school")) || "";
       }
 
       // Upload logo
       if (logoFile) {
-        updatedData.logoUrl = await uploadImage(logoFile, "school");
+        updatedData.logoUrl = (await uploadImage(logoFile, "school")) || "";
       }
 
       // Upload org chart
       if (orgChartFile) {
-        updatedData.orgChartUrl = await uploadImage(orgChartFile, "school");
+        updatedData.orgChartUrl = (await uploadImage(orgChartFile, "school")) || "";
       }
 
       await setDoc(doc(db, "school", "info"), updatedData);
       setData(updatedData);
       alert("บันทึกข้อมูลสำเร็จ!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving data:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + (error?.message || String(error)));
     } finally {
       setSaving(false);
     }

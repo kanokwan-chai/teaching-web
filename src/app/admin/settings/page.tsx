@@ -11,12 +11,15 @@ export default function AdminSettingsDemo() {
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
+    title: "รายงานการฝึกสอน",
     name: "นางสาวกนกวรรณ ชัยชนะ",
     studentId: "6602041630012",
+    department: "เทคโนโลยีคอมพิวเตอร์",
     faculty: "ครุศาสตร์อุตสาหกรรม",
     major: "เทคโนโลยีคอมพิวเตอร์",
     university: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+    school: "วิทยาลัยอาชีวศึกษาสุราษฎร์ธานี",
     term: "ภาคเรียนที่ 1 และ 2 ปีการศึกษา 2567",
     imageUrl: ""
   });
@@ -55,22 +58,31 @@ export default function AdminSettingsDemo() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      let finalImageUrl = formData.imageUrl;
+      let finalImageUrl = formData.imageUrl || "";
 
       if (file) {
-        finalImageUrl = await uploadImage(file, "profile");
+        finalImageUrl = (await uploadImage(file, "profile")) || "";
       }
 
-      await setDoc(doc(db, "settings", "profile"), {
-        ...formData,
+      const cleanData = {
+        title: formData.title || "",
+        name: formData.name || "",
+        studentId: formData.studentId || "",
+        department: formData.department || "",
+        major: formData.major || "",
+        faculty: formData.faculty || "",
+        university: formData.university || "",
+        school: formData.school || "",
         imageUrl: finalImageUrl,
         updatedAt: new Date().toISOString()
-      });
+      };
+
+      await setDoc(doc(db, "settings", "profile"), cleanData);
 
       alert("บันทึกข้อมูลเรียบร้อยแล้ว!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving profile:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + (error?.message || String(error)));
     } finally {
       setSaving(false);
     }

@@ -14,33 +14,34 @@ export default function EvaluationPage() {
 
   useEffect(() => {
     const fetchEvaluations = async () => {
-      try {
-        const q = query(collection(db, "evaluations"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const data: any[] = [];
-        querySnapshot.forEach((doc) => {
-          data.push({ id: doc.id, ...doc.data() });
-        });
         const defaultEvaluations = [
           {
             id: "default_eval_1",
             title: "แบบประเมินผลการจัดการเรียนรู้ ภาคเรียนที่ 1",
             term: 1,
-            pdfUrl: ""
+            pdfUrl: "https://drive.google.com"
           },
           {
             id: "default_eval_2",
             title: "แบบประเมินผลการจัดการเรียนรู้ ภาคเรียนที่ 2",
             term: 2,
-            pdfUrl: ""
+            pdfUrl: "https://drive.google.com"
           }
         ];
-        setEvaluations(data.length > 0 ? data : defaultEvaluations);
-      } catch (error) {
-        console.error("Error fetching evaluations:", error);
-      } finally {
-        setLoading(false);
-      }
+
+        try {
+          const querySnapshot = await getDocs(collection(db, "evaluations"));
+          const data: any[] = [];
+          querySnapshot.forEach((doc) => {
+            data.push({ id: doc.id, ...doc.data() });
+          });
+          setEvaluations(data.length > 0 ? data : defaultEvaluations);
+        } catch (dbErr) {
+          console.warn("Firestore evaluations fetch notice:", dbErr);
+          setEvaluations(defaultEvaluations);
+        } finally {
+          setLoading(false);
+        }
     };
     fetchEvaluations();
   }, []);

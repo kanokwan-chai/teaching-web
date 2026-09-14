@@ -61,10 +61,17 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const term1Images = galleryImages.filter(img => img.term === 1 || Number(img.term) === 1);
-  const term2Images = galleryImages.filter(img => img.term === 2 || Number(img.term) === 2);
-  const finalTerm1Images = term1Images.length > 0 ? term1Images : galleryImages;
-  const finalTerm2Images = term2Images.length > 0 ? term2Images : (term1Images.length > 0 ? term1Images : galleryImages);
+  const defaultGallery = Array.from({ length: 14 }, (_, i) => ({
+    id: `default_gal_${i + 1}`,
+    url: `/uploads/gallery/term-1/${i + 1}.jpg`,
+    term: 1
+  }));
+
+  const activeGallery = galleryImages.length > 0 ? galleryImages : defaultGallery;
+  const term1Images = activeGallery.filter(img => img.term === 1 || Number(img.term) === 1);
+  const term2Images = activeGallery.filter(img => img.term === 2 || Number(img.term) === 2);
+  const finalTerm1Images = term1Images.length > 0 ? term1Images : activeGallery;
+  const finalTerm2Images = term2Images.length > 0 ? term2Images : (term1Images.length > 0 ? term1Images : activeGallery);
 
   // Handle scroll to dismiss intro
   useEffect(() => {

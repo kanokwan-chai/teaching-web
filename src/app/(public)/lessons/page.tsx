@@ -14,21 +14,14 @@ export default function LessonsPage() {
 
   useEffect(() => {
     const fetchLessons = async () => {
-      try {
-        const q = query(collection(db, "lessons"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const data: any[] = [];
-        querySnapshot.forEach((doc) => {
-          data.push({ id: doc.id, ...doc.data() });
-        });
         const defaultLessons = [
           {
             id: "default_lesson_1",
             title: "แผนการจัดการเรียนรู้ วิชาการสร้างเว็บไซต์",
             subject: "การสร้างเว็บไซต์ (Web Construction)",
             term: 1,
-            mentor: "นายวิวิต สืบสอน",
-            pdfUrl: "",
+            mentorTeacher: "นายวิวิต สืบสอน",
+            pdfUrl: "https://drive.google.com",
             workLink: ""
           },
           {
@@ -36,17 +29,25 @@ export default function LessonsPage() {
             title: "แผนการจัดการเรียนรู้ วิชาคณิตศาสตร์คอมพิวเตอร์",
             subject: "คณิตศาสตร์คอมพิวเตอร์ (Computer Mathematics)",
             term: 2,
-            mentor: "นายเมธาสิทธิ์ พลวิธรนันท์",
-            pdfUrl: "",
+            mentorTeacher: "นายเมธาสิทธิ์ พลวิธรนันท์",
+            pdfUrl: "https://drive.google.com",
             workLink: ""
           }
         ];
-        setLessons(data.length > 0 ? data : defaultLessons);
-      } catch (error) {
-        console.error("Error fetching lessons:", error);
-      } finally {
-        setLoading(false);
-      }
+
+        try {
+          const querySnapshot = await getDocs(collection(db, "lessons"));
+          const data: any[] = [];
+          querySnapshot.forEach((doc) => {
+            data.push({ id: doc.id, ...doc.data() });
+          });
+          setLessons(data.length > 0 ? data : defaultLessons);
+        } catch (dbErr) {
+          console.warn("Firestore lessons fetch notice:", dbErr);
+          setLessons(defaultLessons);
+        } finally {
+          setLoading(false);
+        }
     };
     fetchLessons();
   }, []);

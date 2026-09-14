@@ -13,27 +13,28 @@ export default function ResearchPage() {
 
   useEffect(() => {
     const fetchResearches = async () => {
-      try {
-        const q = query(collection(db, "researches"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const data: any[] = [];
-        querySnapshot.forEach((doc) => {
-          data.push({ id: doc.id, ...doc.data() });
-        });
         const defaultResearches = [
           {
             id: "default_research_1",
             title: "การพัฒนาผลสัมฤทธิ์ทางการเรียนวิชาการสร้างเว็บไซต์ด้วยการเรียนรู้แบบใช้โครงงานเป็นฐาน (Project-Based Learning)",
-            pdfUrl: "",
+            pdfUrl: "https://drive.google.com",
             workLink: ""
           }
         ];
-        setResearches(data.length > 0 ? data : defaultResearches);
-      } catch (error) {
-        console.error("Error fetching researches:", error);
-      } finally {
-        setLoading(false);
-      }
+
+        try {
+          const querySnapshot = await getDocs(collection(db, "researches"));
+          const data: any[] = [];
+          querySnapshot.forEach((doc) => {
+            data.push({ id: doc.id, ...doc.data() });
+          });
+          setResearches(data.length > 0 ? data : defaultResearches);
+        } catch (dbErr) {
+          console.warn("Firestore research fetch notice:", dbErr);
+          setResearches(defaultResearches);
+        } finally {
+          setLoading(false);
+        }
     };
     fetchResearches();
   }, []);

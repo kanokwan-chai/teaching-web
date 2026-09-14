@@ -13,6 +13,7 @@ export default function AdminLogs() {
   const [savingWork, setSavingWork] = useState(false);
   const [savingSupervision, setSavingSupervision] = useState(false);
   const [editingLog, setEditingLog] = useState<any>(null);
+  const [activeTerm, setActiveTerm] = useState(1);
   
   const [teachingLogs, setTeachingLogs] = useState<any[]>([]);
   const [works, setWorks] = useState<any[]>([]);
@@ -98,14 +99,17 @@ export default function AdminLogs() {
       setTeachingLogs(combinedLogs);
 
 
-      // Fetch Student Works
-      const q = query(collection(db, "student_works"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      const data: any[] = [];
-      querySnapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() });
-      });
-      setWorks(data);
+      // Fetch Student Works safely without strict query ordering
+      try {
+        const querySnapshot = await getDocs(collection(db, "student_works"));
+        const data: any[] = [];
+        querySnapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+        setWorks(data.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+      } catch (workErr) {
+        console.warn("Firestore student_works fetch notice:", workErr);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -256,17 +260,42 @@ export default function AdminLogs() {
           
           {/* Teaching Logs List */}
           <div className="glass p-6 md:p-8 rounded-[2rem] border border-white/50 bg-white/40 shadow-sm">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2 mb-6 flex items-center gap-2">
-              <FileText size={20} /> บันทึกการสอนย้อนหลัง
-            </h2>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-primary/20 pb-4 mb-6 gap-4">
+              <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                <FileText size={20} /> บันทึกการสอนย้อนหลัง
+              </h2>
+              
+              <div className="flex bg-white/60 p-1 rounded-xl border border-gray-200 shadow-inner">
+                <button
+                  onClick={() => setActiveTerm(1)}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                    activeTerm === 1
+                      ? "bg-primary text-white shadow-md"
+                      : "text-foreground/70 hover:text-foreground hover:bg-white/40"
+                  }`}
+                >
+                  ภาคเรียนที่ 1
+                </button>
+                <button
+                  onClick={() => setActiveTerm(2)}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                    activeTerm === 2
+                      ? "bg-primary text-white shadow-md"
+                      : "text-foreground/70 hover:text-foreground hover:bg-white/40"
+                  }`}
+                >
+                  ภาคเรียนที่ 2
+                </button>
+              </div>
+            </div>
             
-            {teachingLogs.length === 0 ? (
+            {teachingLogs.filter(log => Number(log.term || 1) === activeTerm).length === 0 ? (
               <div className="text-center py-8 text-gray-400">
-                <p>ยังไม่มีบันทึกการสอน</p>
+                <p>ยังไม่มีบันทึกการสอนสำหรับภาคเรียนที่ {activeTerm}</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {teachingLogs.map(log => (
+                {teachingLogs.filter(log => Number(log.term || 1) === activeTerm).map(log => (
                   <div key={log.id} className="bg-white/50 p-4 rounded-xl border border-gray-100 flex justify-between items-center hover:shadow-md transition-shadow">
                     <div>
                       <h3 className="font-bold text-foreground flex items-center gap-2">

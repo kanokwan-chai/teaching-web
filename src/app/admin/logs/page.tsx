@@ -26,12 +26,17 @@ export default function AdminLogs() {
 
   const fetchData = async () => {
     try {
-      // Fetch Teaching Logs
-      const logsQ = query(collection(db, "teaching_logs"), orderBy("weekNumber", "desc"));
-      const logsSnapshot = await getDocs(logsQ);
+      // Fetch Teaching Logs from DB without strict orderBy filter
+      const logsSnapshot = await getDocs(collection(db, "teaching_logs"));
       const logsData: any[] = [];
       logsSnapshot.forEach((doc) => {
-        logsData.push({ id: doc.id, ...doc.data() });
+        const d = doc.data();
+        logsData.push({
+          id: doc.id,
+          ...d,
+          weekNumber: Number(d.weekNumber || d.week || 1),
+          term: Number(d.term || 1),
+        });
       });
 
       // Merge local images

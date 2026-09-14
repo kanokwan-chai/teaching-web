@@ -18,12 +18,17 @@ export default function LogsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Teaching Logs from DB
-        const logsQ = query(collection(db, "teaching_logs"), orderBy("weekNumber", "asc"));
-        const logsSnapshot = await getDocs(logsQ);
+        // Fetch Teaching Logs from DB without strict orderBy filter
+        const logsSnapshot = await getDocs(collection(db, "teaching_logs"));
         const logsData: any[] = [];
         logsSnapshot.forEach((doc) => {
-          logsData.push({ id: doc.id, ...doc.data() });
+          const d = doc.data();
+          logsData.push({
+            id: doc.id,
+            ...d,
+            weekNumber: Number(d.weekNumber || d.week || 1),
+            term: Number(d.term || 1),
+          });
         });
 
         // Scan ALL local log folders in 1 single fast API call

@@ -33,6 +33,14 @@ const dayHeaderColors: Record<string, string> = {
   "ศุกร์": "text-blue-600"
 };
 
+const defaultActivities = [
+  { dayName: "จันทร์", date: "", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาการสร้างเว็บไซต์ ปวช.1", isHoliday: false, leaveType: "none" as const, activityLink: "" },
+  { dayName: "อังคาร", date: "", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาคณิตศาสตร์คอมพิวเตอร์", isHoliday: false, leaveType: "none" as const, activityLink: "" },
+  { dayName: "พุธ", date: "", activity: "เช็คชื่อหน้าเสาธงและปฏิบัติหน้าที่การสอน", isHoliday: false, leaveType: "none" as const, activityLink: "" },
+  { dayName: "พฤหัสบดี", date: "", activity: "เช็คชื่อหน้าเสาธงและปฏิบัติหน้าที่การสอน", isHoliday: false, leaveType: "none" as const, activityLink: "" },
+  { dayName: "ศุกร์", date: "", activity: "เช็คชื่อหน้าเสาธงและสรุปผลการจัดการเรียนรู้ประจำสัปดาห์", isHoliday: false, leaveType: "none" as const, activityLink: "" }
+];
+
 export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSaved: () => void, editLog?: any, onCancelEdit?: () => void }) {
   const [saving, setSaving] = useState(false);
   const [weekNumber, setWeekNumber] = useState("");
@@ -41,9 +49,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
   const [weekFiles, setWeekFiles] = useState<File[]>([]);
   const [weekImageUrls, setWeekImageUrls] = useState<string[]>([]);
   
-  const [activities, setActivities] = useState<Activity[]>(
-    defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none", activityLink: "" }))
-  );
+  const [activities, setActivities] = useState<Activity[]>(defaultActivities);
 
   useEffect(() => {
     if (editLog) {
@@ -56,11 +62,12 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       setWeekFiles([]);
       
       const newActivities = defaultDays.map((day, index) => {
-        const existingAct = editLog.activities[index] || {};
+        const existingAct = editLog.activities?.[index] || {};
+        const def = defaultActivities[index];
         return {
           dayName: day,
           date: existingAct.date || "",
-          activity: existingAct.activity || "",
+          activity: existingAct.activity || def.activity,
           isHoliday: existingAct.isHoliday || false,
           leaveType: existingAct.leaveType || (existingAct.isHoliday ? "holiday" : "none"),
           activityLink: existingAct.activityLink || "",
@@ -73,7 +80,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
       setTerm(1);
       setWeekImageUrls([]);
       setWeekFiles([]);
-      setActivities(defaultDays.map(day => ({ dayName: day, date: "", activity: "", isHoliday: false, leaveType: "none", activityLink: "" })));
+      setActivities(defaultActivities);
     }
   }, [editLog]);
 

@@ -104,11 +104,11 @@ async function seedDatabase() {
       weekNumber: w,
       dateRange: `สัปดาห์ที่ ${w}`,
       activities: [
-        { dayName: "จันทร์", activity: "ปฏิบัติหน้าที่การสอนและเตรียมสื่อการเรียนรู้", leaveType: "none", isHoliday: false },
-        { dayName: "อังคาร", activity: "ปฏิบัติหน้าที่การสอนและปฐมนิเทศนักเรียน", leaveType: "none", isHoliday: false },
-        { dayName: "พุธ", activity: "ปฏิบัติหน้าที่การสอนและตรวจใบงานนักเรียน", leaveType: "none", isHoliday: false },
-        { dayName: "พฤหัสบดี", activity: "ปฏิบัติหน้าที่การสอนและดูแลความเรียบร้อย", leaveType: "none", isHoliday: false },
-        { dayName: "ศุกร์", activity: "สรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
+        { dayName: "จันทร์", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาการสร้างเว็บไซต์ ปวช.1", leaveType: "none", isHoliday: false },
+        { dayName: "อังคาร", activity: "เช็คชื่อหน้าเสาธงและสอนรายวิชาคณิตศาสตร์คอมพิวเตอร์", leaveType: "none", isHoliday: false },
+        { dayName: "พุธ", activity: "เช็คชื่อหน้าเสาธงและปฏิบัติหน้าที่การสอน", leaveType: "none", isHoliday: false },
+        { dayName: "พฤหัสบดี", activity: "เช็คชื่อหน้าเสาธงและปฏิบัติหน้าที่การสอน", leaveType: "none", isHoliday: false },
+        { dayName: "ศุกร์", activity: "เช็คชื่อหน้าเสาธงและสรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
       ],
       createdAt: new Date().toISOString()
     });

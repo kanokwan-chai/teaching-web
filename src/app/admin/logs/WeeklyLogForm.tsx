@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, Loader2, UploadCloud, X, CalendarOff } from "lucide-react";
 import { uploadImage } from "@/lib/upload";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 
 interface Activity {
   dayName: string;
@@ -111,6 +111,21 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
     setWeekImageUrls(newUrls);
   };
 
+const cleanUndefined = (obj: any): any => {
+  if (obj === null || obj === undefined) return null;
+  if (Array.isArray(obj)) return obj.map(cleanUndefined);
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const key of Object.keys(obj)) {
+      if (obj[key] !== undefined) {
+        cleaned[key] = cleanUndefined(obj[key]);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+};
+
   const handleSave = async () => {
     if (!weekNumber || !dateRange) {
       alert("กรุณากรอกสัปดาห์ที่และช่วงวันที่ให้ครบถ้วน");
@@ -127,7 +142,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
         finalImageUrls = [...finalImageUrls, ...uploadedUrls];
       }
 
-      const logData = {
+      const logData = cleanUndefined({
         weekNumber: Number(weekNumber) || 1,
         term: Number(term) || 1,
         dateRange: dateRange || "",
@@ -142,10 +157,12 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
           activityLink: a.activityLink || ""
         })),
         updatedAt: new Date().toISOString()
-      };
+      });
 
-      if (editLog) {
-        await updateDoc(doc(db, "teaching_logs", editLog.id), logData);
+      const isSyntheticId = editLog && String(editLog.id).startsWith("local_log_");
+
+      if (editLog && !isSyntheticId) {
+        await setDoc(doc(db, "teaching_logs", editLog.id), logData, { merge: true });
         alert("แก้ไขบันทึกการสอนสำเร็จ!");
         if (onCancelEdit) onCancelEdit();
       } else {
@@ -154,6 +171,7 @@ export default function WeeklyLogForm({ onSaved, editLog, onCancelEdit }: { onSa
           createdAt: new Date().toISOString()
         });
         alert("บันทึกการสอนสำเร็จ!");
+        if (onCancelEdit) onCancelEdit();
       }
 
       if (!editLog) {

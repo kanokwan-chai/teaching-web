@@ -43,7 +43,8 @@ export default function AdminLogs() {
         console.warn("Firestore admin logs fetch notice:", dbErr);
       }
 
-      // Merge local images
+      // Merge local images and ensure all 20 weeks exist for Term 1 and Term 2
+      const localWeeklyLogs: any[] = [];
       try {
         const res = await fetch("/api/local-images?folder=logs&recursive=true");
         const json = await res.json();
@@ -53,19 +54,33 @@ export default function AdminLogs() {
           for (let w = 1; w <= 20; w++) {
             const folderKey = `logs/term-${t}/week-${w}`;
             const folderImages = tree[folderKey] || [];
-            if (folderImages.length > 0) {
-              const urls = folderImages.map((i: any) => i.url);
-              const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
-              if (existingDbIndex !== -1) {
-                const dbLog = logsData[existingDbIndex];
-                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
-                const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
-                logsData[existingDbIndex] = {
-                  ...dbLog,
-                  imageUrls: mergedUrls,
-                  imageUrl: mergedUrls[0] || ""
-                };
-              }
+            const urls = folderImages.map((i: any) => i.url);
+            const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
+            if (existingDbIndex !== -1) {
+              const dbLog = logsData[existingDbIndex];
+              const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
+              const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
+              logsData[existingDbIndex] = {
+                ...dbLog,
+                imageUrls: mergedUrls,
+                imageUrl: mergedUrls[0] || ""
+              };
+            } else {
+              localWeeklyLogs.push({
+                id: `local_log_t${t}_w${w}`,
+                term: t,
+                weekNumber: w,
+                dateRange: `สัปดาห์ที่ ${w}`,
+                imageUrls: urls,
+                imageUrl: urls[0] || "",
+                activities: [
+                  { dayName: "จันทร์", activity: "ปฏิบัติหน้าที่การสอนและเตรียมสื่อการเรียนรู้", leaveType: "none", isHoliday: false },
+                  { dayName: "อังคาร", activity: "ปฏิบัติหน้าที่การสอนและปฐมนิเทศนักเรียน", leaveType: "none", isHoliday: false },
+                  { dayName: "พุธ", activity: "ปฏิบัติหน้าที่การสอนและตรวจใบงานนักเรียน", leaveType: "none", isHoliday: false },
+                  { dayName: "พฤหัสบดี", activity: "ปฏิบัติหน้าที่การสอนและดูแลความเรียบร้อย", leaveType: "none", isHoliday: false },
+                  { dayName: "ศุกร์", activity: "สรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
+                ]
+              });
             }
           }
         }
@@ -73,7 +88,14 @@ export default function AdminLogs() {
         console.error("Error scanning local logs in admin:", e);
       }
 
-      setTeachingLogs(logsData);
+      const combinedLogs = [...logsData, ...localWeeklyLogs].sort((a, b) => {
+        if (Number(a.term || 1) !== Number(b.term || 1)) {
+          return Number(a.term || 1) - Number(b.term || 1);
+        }
+        return Number(a.weekNumber) - Number(b.weekNumber);
+      });
+
+      setTeachingLogs(combinedLogs);
 
 
       // Fetch Student Works

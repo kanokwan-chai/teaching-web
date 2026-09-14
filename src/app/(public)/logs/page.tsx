@@ -46,35 +46,33 @@ export default function LogsPage() {
             for (let w = 1; w <= 20; w++) {
               const folderKey = `logs/term-${t}/week-${w}`;
               const folderImages = tree[folderKey] || [];
-              if (folderImages.length > 0) {
-                const urls = folderImages.map((i: any) => i.url);
-                const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
-                if (existingDbIndex !== -1) {
-                  const dbLog = logsData[existingDbIndex];
-                  const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
-                  const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
-                  logsData[existingDbIndex] = {
-                    ...dbLog,
-                    imageUrls: mergedUrls,
-                    imageUrl: mergedUrls[0] || ""
-                  };
-                } else {
-                  localWeeklyLogs.push({
-                    id: `local_log_t${t}_w${w}`,
-                    term: t,
-                    weekNumber: w,
-                    dateRange: `สัปดาห์ที่ ${w}`,
-                    imageUrls: urls,
-                    imageUrl: urls[0],
-                    activities: [
-                      { dayName: "จันทร์", activity: "ปฏิบัติหน้าที่การสอนและเตรียมสื่อการเรียนรู้", leaveType: "none", isHoliday: false },
-                      { dayName: "อังคาร", activity: "ปฏิบัติหน้าที่การสอนและปฐมนิเทศนักเรียน", leaveType: "none", isHoliday: false },
-                      { dayName: "พุธ", activity: "ปฏิบัติหน้าที่การสอนและตรวจใบงานนักเรียน", leaveType: "none", isHoliday: false },
-                      { dayName: "พฤหัสบดี", activity: "ปฏิบัติหน้าที่การสอนและดูแลความเรียบร้อย", leaveType: "none", isHoliday: false },
-                      { dayName: "ศุกร์", activity: "สรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
-                    ]
-                  });
-                }
+              const urls = folderImages.map((i: any) => i.url);
+              const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
+              if (existingDbIndex !== -1) {
+                const dbLog = logsData[existingDbIndex];
+                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
+                const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
+                logsData[existingDbIndex] = {
+                  ...dbLog,
+                  imageUrls: mergedUrls,
+                  imageUrl: mergedUrls[0] || ""
+                };
+              } else {
+                localWeeklyLogs.push({
+                  id: `local_log_t${t}_w${w}`,
+                  term: t,
+                  weekNumber: w,
+                  dateRange: `สัปดาห์ที่ ${w}`,
+                  imageUrls: urls,
+                  imageUrl: urls[0] || "",
+                  activities: [
+                    { dayName: "จันทร์", activity: "ปฏิบัติหน้าที่การสอนและเตรียมสื่อการเรียนรู้", leaveType: "none", isHoliday: false },
+                    { dayName: "อังคาร", activity: "ปฏิบัติหน้าที่การสอนและปฐมนิเทศนักเรียน", leaveType: "none", isHoliday: false },
+                    { dayName: "พุธ", activity: "ปฏิบัติหน้าที่การสอนและตรวจใบงานนักเรียน", leaveType: "none", isHoliday: false },
+                    { dayName: "พฤหัสบดี", activity: "ปฏิบัติหน้าที่การสอนและดูแลความเรียบร้อย", leaveType: "none", isHoliday: false },
+                    { dayName: "ศุกร์", activity: "สรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
+                  ]
+                });
               }
             }
           }
@@ -82,9 +80,9 @@ export default function LogsPage() {
           console.error("Error scanning local logs:", err);
         }
 
-        // Clean up logsData so any non-merged DB logs also strip out non-local URLs
+        // Clean up logsData so any non-merged DB logs also keep valid URLs
         const sanitizedLogsData = logsData.map(l => {
-          const cleanUrls = (l.imageUrls || (l.imageUrl ? [l.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+          const cleanUrls = (l.imageUrls || (l.imageUrl ? [l.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
           return {
             ...l,
             imageUrls: cleanUrls,

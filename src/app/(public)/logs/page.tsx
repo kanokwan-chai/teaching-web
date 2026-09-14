@@ -39,10 +39,10 @@ export default function LogsPage() {
               const folderImages = tree[folderKey] || [];
               if (folderImages.length > 0) {
                 const urls = folderImages.map((i: any) => i.url);
-                const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
+                const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
                 if (existingDbIndex !== -1) {
                   const dbLog = logsData[existingDbIndex];
-                  const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+                  const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
                   const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
                   logsData[existingDbIndex] = {
                     ...dbLog,
@@ -57,7 +57,13 @@ export default function LogsPage() {
                     dateRange: `สัปดาห์ที่ ${w}`,
                     imageUrls: urls,
                     imageUrl: urls[0],
-                    activities: []
+                    activities: [
+                      { dayName: "จันทร์", activity: "ปฏิบัติหน้าที่การสอนและเตรียมสื่อการเรียนรู้", leaveType: "none", isHoliday: false },
+                      { dayName: "อังคาร", activity: "ปฏิบัติหน้าที่การสอนและปฐมนิเทศนักเรียน", leaveType: "none", isHoliday: false },
+                      { dayName: "พุธ", activity: "ปฏิบัติหน้าที่การสอนและตรวจใบงานนักเรียน", leaveType: "none", isHoliday: false },
+                      { dayName: "พฤหัสบดี", activity: "ปฏิบัติหน้าที่การสอนและดูแลความเรียบร้อย", leaveType: "none", isHoliday: false },
+                      { dayName: "ศุกร์", activity: "สรุปผลการจัดการเรียนรู้ประจำสัปดาห์", leaveType: "none", isHoliday: false }
+                    ]
                   });
                 }
               }

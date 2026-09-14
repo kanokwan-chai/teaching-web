@@ -46,10 +46,10 @@ export default function AdminLogs() {
             const folderImages = tree[folderKey] || [];
             if (folderImages.length > 0) {
               const urls = folderImages.map((i: any) => i.url);
-              const existingDbIndex = logsData.findIndex(l => (l.term || 1) === t && Number(l.weekNumber) === w);
+              const existingDbIndex = logsData.findIndex(l => Number(l.term || 1) === t && Number(l.weekNumber) === w);
               if (existingDbIndex !== -1) {
                 const dbLog = logsData[existingDbIndex];
-                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && u.startsWith("/uploads/"));
+                const rawDbUrls = (dbLog.imageUrls || (dbLog.imageUrl ? [dbLog.imageUrl] : [])).filter((u: string) => u && (u.startsWith("/uploads/") || u.startsWith("data:")));
                 const mergedUrls = Array.from(new Set([...urls, ...rawDbUrls]));
                 logsData[existingDbIndex] = {
                   ...dbLog,

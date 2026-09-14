@@ -33,7 +33,7 @@ export default function AboutPage() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const dbData = docSnap.data();
-          setProfile({ ...dbData, imageUrl: localProfUrl || dbData.imageUrl });
+          setProfile({ ...dbData, imageUrl: dbData.imageUrl || localProfUrl || "/uploads/profile/1.jpg" });
         } else if (localProfUrl) {
           setProfile({ imageUrl: localProfUrl, name: "นางสาวกนกวรรณ ชัยชนะ" });
         }

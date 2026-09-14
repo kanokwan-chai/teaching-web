@@ -42,11 +42,10 @@ export default function SchoolPage() {
         const docSnap = await getDoc(docRef);
         const dbData = docSnap.exists() ? (docSnap.data() as any) : {};
         
-        // Strip out non-local image URLs
+        // Prioritize Firebase DB image URLs over local fallback
         const sanitizeUrl = (url: string | undefined, localFallback: string | undefined) => {
-          if (localFallback) return localFallback;
-          if (url && url.startsWith("/uploads/")) return url;
-          return "";
+          if (url && url.trim() !== "") return url;
+          return localFallback || "";
         };
 
         setSchoolData({

@@ -14,6 +14,17 @@ export default function SchedulePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch DB schedule data
+        const dbDocRef = doc(db, "school", "schedule");
+        const dbDocSnap = await getDoc(dbDocRef);
+        let dbImages: any[] = [];
+        if (dbDocSnap.exists()) {
+          const dbData = dbDocSnap.data();
+          if (dbData.images && Array.isArray(dbData.images)) {
+            dbImages = dbData.images;
+          }
+        }
+
         // Fetch local schedule images for term 1 & term 2
         const t1Res = await fetch("/api/local-images?folder=schedule/term-1");
         const t1Data = await t1Res.json();
@@ -23,8 +34,8 @@ export default function SchedulePage() {
         const t2Data = await t2Res.json();
         const localT2 = t2Data.images || [];
 
-        // Only use local schedule images from public/uploads/
-        setScheduleImages([...localT1, ...localT2]);
+        // Combine DB and local schedule images, prioritizing DB images
+        setScheduleImages([...dbImages, ...localT1, ...localT2]);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

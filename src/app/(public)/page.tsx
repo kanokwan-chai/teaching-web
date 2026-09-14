@@ -41,17 +41,12 @@ export default function Home() {
           localProfileUrl = profData.images[0].url;
         }
 
-        // Fetch local gallery images for term 1 & term 2
-        const t1Res = await fetch("/api/local-images?folder=gallery/term-1");
-        const t1Data = await t1Res.json();
-        const localT1 = t1Data.images || [];
+        // Fetch local gallery images recursively
+        const galRes = await fetch("/api/local-images?folder=gallery&recursive=true");
+        const galData = await galRes.json();
+        const localGal = galData.images || [];
 
-        const t2Res = await fetch("/api/local-images?folder=gallery/term-2");
-        const t2Data = await t2Res.json();
-        const localT2 = t2Data.images || [];
-
-        // Only use local gallery images from public/uploads/
-        setGalleryImages([...localT1, ...localT2]);
+        setGalleryImages(localGal);
 
         if (localProfileUrl) {
           setSettings((prev: any) => ({ ...prev, imageUrl: localProfileUrl }));
@@ -66,8 +61,10 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const term1Images = galleryImages.filter(img => img.term === 1);
-  const term2Images = galleryImages.filter(img => img.term === 2);
+  const term1Images = galleryImages.filter(img => img.term === 1 || Number(img.term) === 1);
+  const term2Images = galleryImages.filter(img => img.term === 2 || Number(img.term) === 2);
+  const finalTerm1Images = term1Images.length > 0 ? term1Images : galleryImages;
+  const finalTerm2Images = term2Images.length > 0 ? term2Images : (term1Images.length > 0 ? term1Images : galleryImages);
 
   // Handle scroll to dismiss intro
   useEffect(() => {
@@ -232,7 +229,7 @@ export default function Home() {
                 ภาคเรียนที่ 1
               </h3>
                 <ImageCarousel 
-                  images={term1Images} 
+                  images={finalTerm1Images} 
                   accentColor="primary" 
                   aspectRatio="aspect-square" 
                   imageFit="contain" 
@@ -247,7 +244,7 @@ export default function Home() {
                 ภาคเรียนที่ 2
               </h3>
               <ImageCarousel 
-                images={term2Images} 
+                images={finalTerm2Images} 
                 accentColor="accent" 
                 aspectRatio="aspect-square" 
                 imageFit="contain" 

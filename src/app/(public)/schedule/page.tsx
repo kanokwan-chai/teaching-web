@@ -20,20 +20,25 @@ export default function SchedulePage() {
         let dbImages: any[] = [];
         if (dbDocSnap.exists()) {
           const dbData = dbDocSnap.data();
-          if (dbData.images && Array.isArray(dbData.images)) {
-            dbImages = dbData.images;
+          if (dbData.images && Array.isArray(dbData.images) && dbData.images.length > 0) {
+            dbImages = dbData.images.map((img: any) => ({
+              ...img,
+              term: Number(img.term || 1)
+            }));
           }
         }
 
-        // Fetch local schedule images for term 1
-        const t1Res = await fetch("/api/local-images?folder=schedule/term-1");
-        const t1Data = await t1Res.json();
-        const localT1 = t1Data.images || [];
-
-        // Combine DB and local schedule images
-        setScheduleImages([...dbImages, ...localT1]);
+        if (dbImages.length > 0) {
+          setScheduleImages(dbImages);
+        } else {
+          // Fetch local schedule images for term 1 as fallback only if DB is empty
+          const t1Res = await fetch("/api/local-images?folder=schedule/term-1");
+          const t1Data = await t1Res.json();
+          const localT1 = (t1Data.images || []).map((img: any) => ({ ...img, term: 1 }));
+          setScheduleImages(localT1);
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching schedule data:", error);
       } finally {
         setLoading(false);
       }

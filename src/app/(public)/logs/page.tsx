@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon, Video, Play } from "lucide-react";
+import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon, Video } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import ImageCarousel from "@/components/ImageCarousel";
@@ -255,19 +255,17 @@ export default function LogsPage() {
                   <div className="mt-6 space-y-3">
                     {hasImage && (
                       <div className="aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5 group">
-                        <img src={sup.data.imageUrl} alt={sup.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        {hasVideo && (
+                        {hasVideo ? (
                           <a 
                             href={sup.data.videoUrl} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="absolute inset-0 bg-black/30 group-hover:bg-black/45 transition-colors flex items-center justify-center text-white"
                             title="คลิกเพื่อรับชมคลิปวิดีโอ"
                           >
-                            <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <Play size={20} className="ml-0.5 fill-white" />
-                            </div>
+                            <img src={sup.data.imageUrl} alt={sup.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           </a>
+                        ) : (
+                          <img src={sup.data.imageUrl} alt={sup.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         )}
                       </div>
                     )}

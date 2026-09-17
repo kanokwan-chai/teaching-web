@@ -194,13 +194,26 @@ export default function LessonsPage() {
                       <FileText size={18} />
                       เปิดดูแผนการสอน (Google Drive)
                     </a>
+                    {lesson.workLink && (
+                      <a 
+                        href={lesson.workLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:bg-accent/90 transition-all flex items-center gap-2 shadow-md hover:scale-105 transform duration-200"
+                      >
+                        <LinkIcon size={18} />
+                        ดูชิ้นงาน/สื่อ
+                      </a>
+                    )}
                   </div>
                 </div>
 
                 {/* Embedded Scrollable PDF & Media Viewer */}
                 <MediaPreview
                   pdfUrl={lesson.pdfUrl}
+                  workLink={lesson.workLink}
                   pdfTitle="พรีวิวแผนการสอน (PDF)"
+                  workTitle="พรีวิวชิ้นงาน/สื่อการสอน"
                 />
               </motion.div>
             );

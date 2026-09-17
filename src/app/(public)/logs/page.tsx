@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
+import { FileText, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon, Video } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import ImageCarousel from "@/components/ImageCarousel";
@@ -220,49 +220,82 @@ export default function LogsPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/60 p-6 rounded-2xl border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/60 p-6 rounded-2xl border border-primary/20 shadow-sm hover:shadow-md transition-shadow flex flex-col">
               <div className="w-12 h-12 bg-primary/20 text-primary rounded-xl flex items-center justify-center mb-4 text-xl font-bold">1</div>
               <h3 className="font-bold text-lg text-foreground mb-2">การนิเทศ On-site</h3>
-              <div className="space-y-2 text-foreground/80">
+              <div className="space-y-2 text-foreground/80 flex-1">
                 <p><strong>วันที่:</strong> {currentSup.onsite?.date || "-"}</p>
                 <p><strong>วิชา:</strong> {currentSup.onsite?.subject || "-"}</p>
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.onsite?.teacher || "-"}</p>
               </div>
-                {currentSup.onsite?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
-                    <img src={currentSup.onsite.imageUrl} alt="On-site" className="w-full h-full object-contain" />
-                  </div>
-                )}
-              </div>
+              {currentSup.onsite?.videoUrl && (
+                <a 
+                  href={currentSup.onsite.videoUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mt-4 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all border border-red-500"
+                >
+                  <Video size={16} />
+                  <span>รับชมคลิปบันทึกการนิเทศ (YouTube)</span>
+                </a>
+              )}
+              {currentSup.onsite?.imageUrl && (
+                <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                  <img src={currentSup.onsite.imageUrl} alt="On-site" className="w-full h-full object-contain" />
+                </div>
+              )}
+            </div>
 
-            <div className="bg-white/60 p-6 rounded-2xl border border-blue-500/20 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/60 p-6 rounded-2xl border border-blue-500/20 shadow-sm hover:shadow-md transition-shadow flex flex-col">
               <div className="w-12 h-12 bg-blue-500/20 text-blue-600 rounded-xl flex items-center justify-center mb-4 text-xl font-bold">2</div>
               <h3 className="font-bold text-lg text-foreground mb-2">การนิเทศ Online (ครั้งที่ 1)</h3>
-              <div className="space-y-2 text-foreground/80">
+              <div className="space-y-2 text-foreground/80 flex-1">
                 <p><strong>วันที่:</strong> {currentSup.online1?.date || "-"}</p>
                 <p><strong>วิชา:</strong> {currentSup.online1?.subject || "-"}</p>
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.online1?.teacher || "-"}</p>
-                {currentSup.online1?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
-                    <img src={currentSup.online1.imageUrl} alt="Online 1" className="w-full h-full object-contain" />
-                  </div>
-                )}
               </div>
+              {currentSup.online1?.videoUrl && (
+                <a 
+                  href={currentSup.online1.videoUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mt-4 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all border border-red-500"
+                >
+                  <Video size={16} />
+                  <span>รับชมคลิปบันทึกการนิเทศ (YouTube)</span>
+                </a>
+              )}
+              {currentSup.online1?.imageUrl && (
+                <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                  <img src={currentSup.online1.imageUrl} alt="Online 1" className="w-full h-full object-contain" />
+                </div>
+              )}
             </div>
 
-            <div className="bg-white/60 p-6 rounded-2xl border border-blue-500/20 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/60 p-6 rounded-2xl border border-blue-500/20 shadow-sm hover:shadow-md transition-shadow flex flex-col">
               <div className="w-12 h-12 bg-blue-500/20 text-blue-600 rounded-xl flex items-center justify-center mb-4 text-xl font-bold">3</div>
               <h3 className="font-bold text-lg text-foreground mb-2">การนิเทศ Online (ครั้งที่ 2)</h3>
-              <div className="space-y-2 text-foreground/80">
+              <div className="space-y-2 text-foreground/80 flex-1">
                 <p><strong>วันที่:</strong> {currentSup.online2?.date || "-"}</p>
                 <p><strong>วิชา:</strong> {currentSup.online2?.subject || "-"}</p>
                 <p><strong>อาจารย์นิเทศ:</strong> {currentSup.online2?.teacher || "-"}</p>
-                {currentSup.online2?.imageUrl && (
-                  <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
-                    <img src={currentSup.online2.imageUrl} alt="Online 2" className="w-full h-full object-contain" />
-                  </div>
-                )}
               </div>
+              {currentSup.online2?.videoUrl && (
+                <a 
+                  href={currentSup.online2.videoUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mt-4 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all border border-red-500"
+                >
+                  <Video size={16} />
+                  <span>รับชมคลิปบันทึกการนิเทศ (YouTube)</span>
+                </a>
+              )}
+              {currentSup.online2?.imageUrl && (
+                <div className="mt-4 aspect-video rounded-xl overflow-hidden relative border border-gray-200 bg-black/5">
+                  <img src={currentSup.online2.imageUrl} alt="Online 2" className="w-full h-full object-contain" />
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

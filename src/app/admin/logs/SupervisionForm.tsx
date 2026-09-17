@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Loader2, UploadCloud, FileText, X } from "lucide-react";
+import { Save, Loader2, UploadCloud, FileText, X, Video } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { uploadImage } from "@/lib/upload";
@@ -11,6 +11,7 @@ interface SupRecord {
   subject: string;
   teacher: string;
   imageUrl: string;
+  videoUrl?: string;
   file: File | null;
 }
 
@@ -20,7 +21,7 @@ interface TermSupervision {
   online2: SupRecord;
 }
 
-const emptyRecord: SupRecord = { date: "", subject: "", teacher: "", imageUrl: "", file: null };
+const emptyRecord: SupRecord = { date: "", subject: "", teacher: "", imageUrl: "", videoUrl: "", file: null };
 
 export default function SupervisionForm() {
   const [loading, setLoading] = useState(true);
@@ -97,7 +98,8 @@ export default function SupervisionForm() {
           date: record.date || "",
           subject: record.subject || "",
           teacher: record.teacher || "",
-          imageUrl: uploadedUrl || ""
+          imageUrl: uploadedUrl || "",
+          videoUrl: record.videoUrl || ""
         };
       };
 
@@ -168,6 +170,18 @@ export default function SupervisionForm() {
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">อาจารย์ที่นิเทศ</label>
           <input type="text" value={record.teacher} onChange={(e) => handleChange(type, "teacher", e.target.value)} className="w-full p-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/50 focus:outline-none" placeholder="ชื่ออาจารย์..." />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1 flex items-center gap-1">
+            <Video size={14} className="text-red-500" /> ลิงก์คลิปวิดีโอ (YouTube)
+          </label>
+          <input 
+            type="url" 
+            value={record.videoUrl || ""} 
+            onChange={(e) => handleChange(type, "videoUrl", e.target.value)} 
+            className="w-full p-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-500/50 focus:outline-none text-red-600 font-medium" 
+            placeholder="https://www.youtube.com/watch?v=..." 
+          />
         </div>
         <div className="flex-1 flex flex-col mt-2">
           <label className="block text-xs font-bold text-foreground mb-1">รูปภาพประกอบ</label>

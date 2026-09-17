@@ -20,7 +20,6 @@ export default function AdminLessons() {
     mentorTeacher: "",
     title: "",
     pdfUrl: "",
-    workLink: "",
   });
 
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function AdminLessons() {
       mentorTeacher: "",
       title: "",
       pdfUrl: "",
-      workLink: "",
     });
   };
 
@@ -63,7 +61,6 @@ export default function AdminLessons() {
       mentorTeacher: lesson.mentorTeacher || "",
       title: lesson.title || "",
       pdfUrl: lesson.pdfUrl || "",
-      workLink: lesson.workLink || "",
     });
     // Scroll form into view
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -86,7 +83,6 @@ export default function AdminLessons() {
           title: formData.title,
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
-          workLink: formData.workLink || "",
           updatedAt: new Date().toISOString()
         });
         alert("อัปเดตข้อมูลแผนการสอนสำเร็จ!");
@@ -99,7 +95,6 @@ export default function AdminLessons() {
           title: formData.title,
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
-          workLink: formData.workLink || "",
           createdAt: new Date().toISOString()
         });
         alert("บันทึกแผนการสอนสำเร็จ!");
@@ -239,21 +234,6 @@ export default function AdminLessons() {
               </div>
               <p className="text-xs text-foreground/50 mt-1.5">อย่าลืมตั้งค่าลิงก์ใน Google Drive ให้เป็น "Anyone with the link"</p>
             </div>
-
-            {/* Work Link (Optional) */}
-            <div>
-              <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ชิ้นงาน / ผลงาน / สื่อการสอน (ถ้ามี)</label>
-              <div className="relative">
-                <LinkIcon className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                <input 
-                  type="url" 
-                  value={formData.workLink}
-                  onChange={(e) => setFormData({ ...formData, workLink: e.target.value })}
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                  placeholder="วางลิงก์ผลงาน หรือ สื่อการสอน..." 
-                />
-              </div>
-            </div>
             
             <div className="flex gap-2 pt-2">
               <button 
@@ -356,12 +336,6 @@ export default function AdminLessons() {
                             <FileText size={14} />
                             เปิดลิงก์ PDF
                           </a>
-                          {lesson.workLink && (
-                            <a href={lesson.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
-                              <LinkIcon size={14} />
-                              ลิงก์ชิ้นงาน
-                            </a>
-                          )}
                           <button
                             onClick={() => setPreviewId(isPreviewing ? null : lesson.id)}
                             className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
@@ -397,9 +371,7 @@ export default function AdminLessons() {
                       <div className="mt-4 pt-4 border-t border-gray-200/60">
                         <MediaPreview
                           pdfUrl={lesson.pdfUrl}
-                          workLink={lesson.workLink}
                           pdfTitle="พรีวิวแผนการสอน (PDF)"
-                          workTitle="พรีวิวชิ้นงาน/สื่อ"
                         />
                       </div>
                     )}

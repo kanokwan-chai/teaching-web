@@ -85,10 +85,14 @@ export function getEmbedInfo(url: string | undefined | null): EmbedInfo | null {
     };
   }
 
-  // 5. Fallback generic website preview using Google Docs viewer
-  return {
-    embedUrl: `https://docs.google.com/gview?url=${encodeURIComponent(trimmed)}&embedded=true`,
-    type: 'generic',
-    label: 'Web Link'
-  };
+  // 5. Generic HTTP/HTTPS URL
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return {
+      embedUrl: trimmed,
+      type: 'generic',
+      label: 'ลิงก์ภายนอก'
+    };
+  }
+
+  return null;
 }

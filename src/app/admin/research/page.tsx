@@ -16,6 +16,7 @@ export default function AdminResearch() {
     title: "",
     pdfUrl: "",
     slideUrl: "",
+    workLink: "",
   });
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function AdminResearch() {
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: "", pdfUrl: "", slideUrl: "" });
+    setFormData({ title: "", pdfUrl: "", slideUrl: "", workLink: "" });
   };
 
   const handleEditClick = (resItem: any) => {
@@ -49,13 +50,14 @@ export default function AdminResearch() {
       title: resItem.title || "",
       pdfUrl: resItem.pdfUrl || "",
       slideUrl: resItem.slideUrl || "",
+      workLink: resItem.workLink || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSave = async () => {
-    if (!formData.title || (!formData.pdfUrl && !formData.slideUrl)) {
-      alert("กรุณากรอกชื่องานวิจัย และใส่ลิงก์ PDF หรือ ลิงก์สไลด์นำเสนอ อย่างน้อย 1 ลิงก์");
+    if (!formData.title || (!formData.pdfUrl && !formData.slideUrl && !formData.workLink)) {
+      alert("กรุณากรอกชื่องานวิจัย และใส่ลิงก์ PDF, สไลด์นำเสนอ หรือ ลิงก์ชิ้นงาน อย่างน้อย 1 ลิงก์");
       return;
     }
 
@@ -67,6 +69,7 @@ export default function AdminResearch() {
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
           slideUrl: formData.slideUrl,
+          workLink: formData.workLink,
           updatedAt: new Date().toISOString()
         });
         alert("อัปเดตข้อมูลวิจัยในชั้นเรียนสำเร็จ!");
@@ -76,6 +79,7 @@ export default function AdminResearch() {
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
           slideUrl: formData.slideUrl,
+          workLink: formData.workLink,
           createdAt: new Date().toISOString()
         });
         alert("บันทึกวิจัยในชั้นเรียนสำเร็จ!");
@@ -182,6 +186,20 @@ export default function AdminResearch() {
               <p className="text-xs text-foreground/50 mt-2">ใส่ลิงก์สไลด์นำเสนอเพื่อแสดงตัวอย่างพรีวิวในหน้าเว็บไซต์</p>
             </div>
 
+            <div>
+              <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ชิ้นงาน / ผลงาน (ถ้ามี)</label>
+              <div className="relative">
+                <LinkIcon className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                <input 
+                  type="url" 
+                  value={formData.workLink}
+                  onChange={(e) => setFormData({...formData, workLink: e.target.value})}
+                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="วางลิงก์ผลงานที่นี่..." 
+                />
+              </div>
+            </div>
+            
             <div className="flex gap-2 pt-2">
               <button 
                 onClick={handleSave}
@@ -231,14 +249,22 @@ export default function AdminResearch() {
                       <div>
                         <h3 className="font-bold text-lg text-foreground">{resItem.title}</h3>
                         <div className="flex items-center gap-4 mt-2 flex-wrap">
-                          <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
-                            <FileText size={14} />
-                            เปิดดูไฟล์ PDF
-                          </a>
+                          {resItem.pdfUrl && (
+                            <a href={resItem.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                              <FileText size={14} />
+                              เปิดดูไฟล์ PDF
+                            </a>
+                          )}
                           {resItem.slideUrl && (
                             <a href={resItem.slideUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-orange-600 hover:underline flex items-center gap-1 font-medium">
                               <Presentation size={14} />
                               เปิดดูสไลด์นำเสนอ
+                            </a>
+                          )}
+                          {resItem.workLink && (
+                            <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
+                              <LinkIcon size={14} />
+                              ลิงก์ชิ้นงาน
                             </a>
                           )}
                           <button
@@ -277,6 +303,7 @@ export default function AdminResearch() {
                           pdfUrl={resItem.pdfUrl}
                           pdfTitle="พรีวิววิจัย (PDF)"
                           slideUrl={resItem.slideUrl}
+                          workLink={resItem.workLink}
                         />
                       </div>
                     )}

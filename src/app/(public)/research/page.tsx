@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, Loader2, Link as LinkIcon, Sparkles } from "lucide-react";
+import { FileText, Loader2, Link as LinkIcon, Sparkles, Presentation } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import MediaPreview from "@/components/MediaPreview";
@@ -95,6 +95,17 @@ export default function ResearchPage() {
                     <FileText size={18} />
                     เปิดดูวิจัย (Google Drive)
                   </a>
+                  {resItem.slideUrl && (
+                    <a 
+                      href={resItem.slideUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md hover:scale-105 transform duration-200"
+                    >
+                      <Presentation size={18} />
+                      เปิดดูสไลด์นำเสนอ
+                    </a>
+                  )}
                   {resItem.workLink && (
                     <a 
                       href={resItem.workLink} 
@@ -109,10 +120,14 @@ export default function ResearchPage() {
                 </div>
               </div>
 
-              {/* Embedded PDF Viewer Only */}
+              {/* Embedded Media Viewer */}
               <MediaPreview
                 pdfUrl={resItem.pdfUrl}
-                pdfTitle="พรีวิววิจัย (PDF)"
+                pdfTitle="วิจัย (PDF)"
+                slideUrl={resItem.slideUrl}
+                slideTitle="สไลด์นำเสนอ"
+                workLink={resItem.workLink}
+                workTitle="ชิ้นงาน / ผลงาน"
               />
             </motion.div>
           ))}

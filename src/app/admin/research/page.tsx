@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Pencil, X, Eye, EyeOff } from "lucide-react";
+import { Link as LinkIcon, FileText, Trash2, Loader2, Save, Pencil, X, Eye, EyeOff, Presentation } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy } from "firebase/firestore";
 import MediaPreview from "@/components/MediaPreview";
@@ -15,6 +15,7 @@ export default function AdminResearch() {
   const [formData, setFormData] = useState({
     title: "",
     pdfUrl: "",
+    slideUrl: "",
     workLink: "",
   });
 
@@ -40,7 +41,7 @@ export default function AdminResearch() {
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: "", pdfUrl: "", workLink: "" });
+    setFormData({ title: "", pdfUrl: "", slideUrl: "", workLink: "" });
   };
 
   const handleEditClick = (resItem: any) => {
@@ -48,6 +49,7 @@ export default function AdminResearch() {
     setFormData({
       title: resItem.title || "",
       pdfUrl: resItem.pdfUrl || "",
+      slideUrl: resItem.slideUrl || "",
       workLink: resItem.workLink || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -66,6 +68,7 @@ export default function AdminResearch() {
           title: formData.title,
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
+          slideUrl: formData.slideUrl,
           workLink: formData.workLink,
           updatedAt: new Date().toISOString()
         });
@@ -75,6 +78,7 @@ export default function AdminResearch() {
           title: formData.title,
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
+          slideUrl: formData.slideUrl,
           workLink: formData.workLink,
           createdAt: new Date().toISOString()
         });
@@ -168,6 +172,21 @@ export default function AdminResearch() {
             </div>
             
             <div>
+              <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ Google Drive / Canva (สไลด์นำเสนอ)</label>
+              <div className="relative">
+                <Presentation className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                <input 
+                  type="url" 
+                  value={formData.slideUrl}
+                  onChange={(e) => setFormData({...formData, slideUrl: e.target.value})}
+                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="วางลิงก์ Google Slides / Canva Presentation ที่นี่..." 
+                />
+              </div>
+              <p className="text-xs text-foreground/50 mt-2">ใส่ลิงก์สไลด์นำเสนอเพื่อแสดงตัวอย่างพรีวิวในหน้าเว็บไซต์</p>
+            </div>
+
+            <div>
               <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ชิ้นงาน (ถ้ามี)</label>
               <div className="relative">
                 <LinkIcon className="absolute left-3 top-3.5 text-gray-400" size={18} />
@@ -234,6 +253,12 @@ export default function AdminResearch() {
                             <FileText size={14} />
                             เปิดดูไฟล์ PDF
                           </a>
+                          {resItem.slideUrl && (
+                            <a href={resItem.slideUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-orange-600 hover:underline flex items-center gap-1 font-medium">
+                              <Presentation size={14} />
+                              เปิดดูสไลด์นำเสนอ
+                            </a>
+                          )}
                           {resItem.workLink && (
                             <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
                               <LinkIcon size={14} />
@@ -245,7 +270,7 @@ export default function AdminResearch() {
                             className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
                           >
                             {isPreviewing ? <EyeOff size={14} /> : <Eye size={14} />}
-                            <span>{isPreviewing ? "ซ่อนตัวอย่าง PDF" : "พรีวิวตัวอย่าง"}</span>
+                            <span>{isPreviewing ? "ซ่อนพรีวิว" : "พรีวิวตัวอย่าง"}</span>
                           </button>
                         </div>
                       </div>
@@ -275,6 +300,8 @@ export default function AdminResearch() {
                         <MediaPreview
                           pdfUrl={resItem.pdfUrl}
                           pdfTitle="พรีวิววิจัย (PDF)"
+                          slideUrl={resItem.slideUrl}
+                          workLink={resItem.workLink}
                         />
                       </div>
                     )}

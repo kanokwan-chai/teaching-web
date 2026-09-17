@@ -1,49 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getEmbedInfo } from "@/lib/pdfUtils";
-import { ExternalLink, Maximize2, X, FileText, Link as LinkIcon, Loader2, Sparkles } from "lucide-react";
+import { ExternalLink, Maximize2, X, FileText, Link as LinkIcon, Loader2, Sparkles, Presentation } from "lucide-react";
 
 interface MediaPreviewProps {
   pdfUrl?: string;
+  slideUrl?: string;
   workLink?: string;
   pdfTitle?: string;
+  slideTitle?: string;
   workTitle?: string;
   className?: string;
 }
 
 export default function MediaPreview({
   pdfUrl,
+  slideUrl,
   workLink,
   pdfTitle = "เอกสาร (PDF)",
+  slideTitle = "สไลด์นำเสนอ (Presentation)",
   workTitle = "ชิ้นงาน / ผลงาน",
   className = "",
 }: MediaPreviewProps) {
-  const [activeTab, setActiveTab] = useState<"pdf" | "work">("pdf");
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(true);
-  const [workLoading, setWorkLoading] = useState(true);
-
   const pdfEmbed = getEmbedInfo(pdfUrl);
+  const slideEmbed = getEmbedInfo(slideUrl);
   const workEmbed = getEmbedInfo(workLink);
 
-  const currentEmbed = activeTab === "pdf" ? pdfEmbed : workEmbed;
-  const currentRawUrl = activeTab === "pdf" ? pdfUrl : workLink;
-  const currentTitle = activeTab === "pdf" ? pdfTitle : workTitle;
-  const currentLoading = activeTab === "pdf" ? pdfLoading : workLoading;
+  const [activeTab, setActiveTab] = useState<"pdf" | "slide" | "work">(() => {
+    if (pdfEmbed) return "pdf";
+    if (slideEmbed) return "slide";
+    return "work";
+  });
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [loadingState, setLoadingState] = useState(true);
 
-  if (!pdfEmbed && !workEmbed) {
+  useEffect(() => {
+    if (!pdfEmbed && slideEmbed && activeTab === "pdf") {
+      setActiveTab("slide");
+    }
+  }, [pdfEmbed, slideEmbed, activeTab]);
+
+  const currentEmbed = activeTab === "pdf" ? pdfEmbed : activeTab === "slide" ? slideEmbed : workEmbed;
+  const currentRawUrl = activeTab === "pdf" ? pdfUrl : activeTab === "slide" ? slideUrl : workLink;
+  const currentTitle = activeTab === "pdf" ? pdfTitle : activeTab === "slide" ? slideTitle : workTitle;
+
+  if (!pdfEmbed && !slideEmbed && !workEmbed) {
     return null;
   }
 
   return (
     <div className={`mt-6 w-full ${className}`}>
-      {/* Tab Switcher if both PDF & Work link exist */}
+      {/* Tab Switcher if PDF, Slide, or Work link exist */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 p-1 bg-gray-100/80 rounded-xl border border-gray-200/60">
           {pdfEmbed && (
             <button
-              onClick={() => setActiveTab("pdf")}
+              onClick={() => { setActiveTab("pdf"); setLoadingState(true); }}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === "pdf"
                   ? "bg-white text-primary shadow-sm"
@@ -54,9 +67,22 @@ export default function MediaPreview({
               <span>{pdfTitle}</span>
             </button>
           )}
+          {slideEmbed && (
+            <button
+              onClick={() => { setActiveTab("slide"); setLoadingState(true); }}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+                activeTab === "slide"
+                  ? "bg-white text-orange-600 shadow-sm"
+                  : "text-gray-600 hover:text-foreground hover:bg-white/50"
+              }`}
+            >
+              <Presentation size={16} />
+              <span>{slideTitle}</span>
+            </button>
+          )}
           {workEmbed && (
             <button
-              onClick={() => setActiveTab("work")}
+              onClick={() => { setActiveTab("work"); setLoadingState(true); }}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === "work"
                   ? "bg-white text-accent shadow-sm"
@@ -98,10 +124,10 @@ export default function MediaPreview({
 
       {/* Embedded Iframe Container */}
       <div className="relative w-full h-[480px] md:h-[580px] rounded-2xl overflow-hidden border border-gray-200/80 bg-slate-900/5 shadow-inner">
-        {currentLoading && (
+        {loadingState && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/90 backdrop-blur-sm z-10">
             <Loader2 size={40} className="animate-spin text-primary mb-3" />
-            <p className="text-sm font-medium text-gray-600">กำลังโหลดตัวอย่างไฟล์ PDF...</p>
+            <p className="text-sm font-medium text-gray-600">กำลังโหลดตัวอย่าง...</p>
             <p className="text-xs text-gray-400 mt-1">กรุณารอสักครู่</p>
           </div>
         )}
@@ -112,10 +138,7 @@ export default function MediaPreview({
             className="w-full h-full border-0 rounded-2xl"
             allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
-            onLoad={() => {
-              if (activeTab === "pdf") setPdfLoading(false);
-              else setWorkLoading(false);
-            }}
+            onLoad={() => setLoadingState(false)}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 p-6 text-center">

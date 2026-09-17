@@ -56,8 +56,8 @@ export default function AdminResearch() {
   };
 
   const handleSave = async () => {
-    if (!formData.pdfUrl || !formData.title) {
-      alert("กรุณากรอกข้อมูลและใส่ลิงก์ Google Drive ให้ครบถ้วน");
+    if (!formData.title || (!formData.pdfUrl && !formData.slideUrl)) {
+      alert("กรุณากรอกชื่องานวิจัย และใส่ลิงก์ PDF หรือ ลิงก์สไลด์นำเสนอ อย่างน้อย 1 ลิงก์");
       return;
     }
 

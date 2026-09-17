@@ -86,15 +86,17 @@ export default function ResearchPage() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <a 
-                    href={resItem.pdfUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all flex items-center gap-2 shadow-md hover:scale-105 transform duration-200"
-                  >
-                    <FileText size={18} />
-                    เปิดดูวิจัย (Google Drive)
-                  </a>
+                  {resItem.pdfUrl && (
+                    <a 
+                      href={resItem.pdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all flex items-center gap-2 shadow-md hover:scale-105 transform duration-200"
+                    >
+                      <FileText size={18} />
+                      เปิดดูวิจัย (Google Drive)
+                    </a>
+                  )}
                   {resItem.slideUrl && (
                     <a 
                       href={resItem.slideUrl} 

@@ -108,17 +108,6 @@ export default function ResearchPage() {
                       เปิดดูสไลด์นำเสนอ
                     </a>
                   )}
-                  {resItem.workLink && (
-                    <a 
-                      href={resItem.workLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:bg-accent/90 transition-all flex items-center gap-2 shadow-md hover:scale-105 transform duration-200"
-                    >
-                      <LinkIcon size={18} />
-                      ดูชิ้นงาน/ผลงาน
-                    </a>
-                  )}
                 </div>
               </div>
 
@@ -128,8 +117,6 @@ export default function ResearchPage() {
                 pdfTitle="วิจัย (PDF)"
                 slideUrl={resItem.slideUrl}
                 slideTitle="สไลด์นำเสนอ"
-                workLink={resItem.workLink}
-                workTitle="ชิ้นงาน / ผลงาน"
               />
             </motion.div>
           ))}

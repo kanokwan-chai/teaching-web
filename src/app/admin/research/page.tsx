@@ -16,7 +16,6 @@ export default function AdminResearch() {
     title: "",
     pdfUrl: "",
     slideUrl: "",
-    workLink: "",
   });
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function AdminResearch() {
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: "", pdfUrl: "", slideUrl: "", workLink: "" });
+    setFormData({ title: "", pdfUrl: "", slideUrl: "" });
   };
 
   const handleEditClick = (resItem: any) => {
@@ -50,7 +49,6 @@ export default function AdminResearch() {
       title: resItem.title || "",
       pdfUrl: resItem.pdfUrl || "",
       slideUrl: resItem.slideUrl || "",
-      workLink: resItem.workLink || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -69,7 +67,6 @@ export default function AdminResearch() {
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
           slideUrl: formData.slideUrl,
-          workLink: formData.workLink,
           updatedAt: new Date().toISOString()
         });
         alert("อัปเดตข้อมูลวิจัยในชั้นเรียนสำเร็จ!");
@@ -79,7 +76,6 @@ export default function AdminResearch() {
           filename: "ลิงก์ Google Drive",
           pdfUrl: formData.pdfUrl,
           slideUrl: formData.slideUrl,
-          workLink: formData.workLink,
           createdAt: new Date().toISOString()
         });
         alert("บันทึกวิจัยในชั้นเรียนสำเร็จ!");
@@ -186,20 +182,6 @@ export default function AdminResearch() {
               <p className="text-xs text-foreground/50 mt-2">ใส่ลิงก์สไลด์นำเสนอเพื่อแสดงตัวอย่างพรีวิวในหน้าเว็บไซต์</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-foreground mb-2">ลิงก์ชิ้นงาน (ถ้ามี)</label>
-              <div className="relative">
-                <LinkIcon className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                <input 
-                  type="url" 
-                  value={formData.workLink}
-                  onChange={(e) => setFormData({...formData, workLink: e.target.value})}
-                  className="w-full pl-10 p-3 rounded-xl border border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary/50" 
-                  placeholder="วางลิงก์ผลงานที่นี่..." 
-                />
-              </div>
-            </div>
-            
             <div className="flex gap-2 pt-2">
               <button 
                 onClick={handleSave}
@@ -259,12 +241,6 @@ export default function AdminResearch() {
                               เปิดดูสไลด์นำเสนอ
                             </a>
                           )}
-                          {resItem.workLink && (
-                            <a href={resItem.workLink} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 font-medium">
-                              <LinkIcon size={14} />
-                              ลิงก์ชิ้นงาน
-                            </a>
-                          )}
                           <button
                             onClick={() => setPreviewId(isPreviewing ? null : resItem.id)}
                             className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors"
@@ -301,7 +277,6 @@ export default function AdminResearch() {
                           pdfUrl={resItem.pdfUrl}
                           pdfTitle="พรีวิววิจัย (PDF)"
                           slideUrl={resItem.slideUrl}
-                          workLink={resItem.workLink}
                         />
                       </div>
                     )}
